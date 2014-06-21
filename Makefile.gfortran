@@ -1,0 +1,56 @@
+CXXFLAGS = -O3 -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone  -ftree-vectorize -fopenmp -D"restrict "=__restrict -funroll-loops --param max-unroll-times=4  -ffast-math -march=native
+CFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -fopenmp -std=c99 -funroll-loops --param max-unroll-times=4  -march=native -ffast-math -fcilkplus -D__assume_aligned= 
+# -fassociative-math works nearly as well as fast-math with recent gfortran 4.3
+# It is preferred for vectorizable code.
+FFLAGS   = -O3 -ftree-vectorize -fopenmp  -funroll-loops --param max-unroll-times=4  -ffast-math -D__SSE4_1__ -D__SSE2__ -march=native
+# Intel libiomp5 is an optional faster replacement for libgomp
+# comes with MKL 10, ifort 10.1, icc 10.1
+LDFLAGS  = -lstdc++
+CXX      = g++
+CC       = gcc
+FC       = gfortran
+
+all:	lcd_f90 lcd_cxx 
+
+lcd_f90:	mains.o loops90.o f90_cputime.o ieee_arithmetic.o ieee_arith.o lcd_mod.o
+	$(FC) $(FFLAGS) -o $@ mains.o loops90.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+
+lcd_ffast:	mains.o loopsfv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o lcd_mod.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+
+lcd_cxx:	mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+
+lcd_cean:	mains.o loopscean.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopscean.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS) -lcilkrts
+
+lcd_cfast:	mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+
+ieee_arithmetic.o:	ieee_arithmetic.F90
+	$(FC) $(FFLAGS) -c $*.F90
+
+ieee_arithmetic.mod:	ieee_arithmetic.F90
+	$(FC) -c $*.F90
+
+mains.o:	mains.F ieee_arithmetic.mod
+	$(FC) -c $(FFLAGS) -mfpmath=387 $*.F
+
+# set CLOCK_RATE to cpu clock speed of benchmark platform
+f90_cputime.o:	
+	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=3326000000 $*.c
+
+.F.o:
+	$(FC) $(FFLAGS) -c $*.F
+
+lcd_mod.o:
+	$(FC) $(FFLAGS) -c lcdmod.f90
+
+.f.o:
+	$(FC) $(FFLAGS) -c $*.f
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c $*.cpp
+
+.c.o:
+	$(CC) $(CFLAGS) -c $*.c
