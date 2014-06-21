@@ -1,0 +1,79 @@
+# setup: replace vcvars call in iccvars.bat with VC9 vcvars.bat
+# replace vcvars in ifortvars.bat by iclvars.bat
+# set CLOCK_RATE to cpu clock speed of benchmark platform
+CXXIFLAGS = -O3 -Qrestrict -Qopenmp -Qansi_alias -QxHost -Qunroll4 -Zi -Qopt-report-file=$*_opt.txt -Qopt-report4
+CIFLAGS = -O3 -Qstd=c99 -Qopenmp -Qansi_alias -QxHost -Qunroll4 -Zi -Qopt-report-file=$*_opt.txt -Qopt-report4
+# cl /openmp fails in VC Express; add for full VC
+CXXMFLAGS = /Ox /EHsc /GL- /Drestrict= /openmp /fp:fast -Zi /arch:AVX 
+#VS2008 requires MT option, such as openmp
+# add /favor:EM64T for 64-bit
+FFLAGS   = -O3 -Qopenmp -assume:protect_parens,underscore -QxHost -Qunroll4 -fpp -names:lowercase -Zi -align:array32byte -Qopt-report-file=$*_opt.txt -Qopt-report4
+LDFLAGS  = /link /stack:80000000
+CXXM     = cl
+CXXI     = icl
+CC       = cl
+FC       = ifort
+.SUFFIXES:	.obj .f90
+
+all:	lcd_f90 lcd_cxxi lcd_cxxm lcdmod.obj
+
+lcd_f90:	mains.obj loops90.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loops90.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_ffast:	mains.obj loopsfv.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loopsfv.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_cxxi:	mains.obj loopstli.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loopstli.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_cxxm:	mains.obj loopstlm.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loopstlm.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_cfast:	mains.obj loopsv.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loopsv.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_cean:	mains.obj loopscean.obj f90_msrdtsc.obj
+	$(FC) $(FFLAGS) mains.obj loopscean.obj f90_msrdtsc.obj $(LDFLAGS)
+	mv mains.exe $@.exe
+	mv mains.pdb $@.pdb
+
+lcd_mod.mod:	lcdmod.obj
+
+mains.obj:	mains.F lcd_mod.mod
+	$(FC) -c $(FFLAGS) -Qip- $*.F
+
+loopstli.obj:	loopstl.cpp
+	$(CXXI) $(CXXIFLAGS) -c loopstl.cpp
+	mv loopstl.obj $@
+
+loopstlm.obj:	loopstl.cpp
+	$(CXXM) $(CXXMFLAGS) /Qvec-report:1 -c loopstl.cpp > loopstlm.txt 2>&1
+	mv loopstl.obj $@
+
+f90_msrdtsc.obj:	
+	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=2295000000 $*.c
+
+.F.obj:
+	$(FC) $(FFLAGS) -c $*.F
+
+.f90.obj:
+	$(FC) $(FFLAGS) -c $*.f90
+
+.f.obj:
+	$(FC) $(FFLAGS) -c $*.f
+
+.cpp.obj:
+	$(CXX) $(CXXFLAGS) -c $*.cpp
+
+.c.obj:
+	$(CXXI) $(CIFLAGS) -c $*.c

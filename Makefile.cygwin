@@ -1,0 +1,52 @@
+CXXFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -Drestrict=__restrict
+CFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -std=c99 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D__assume_aligned=  -ffp-contract=fast
+FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__
+LDFLAGS  =  -lstdc++ -Wl,--stack,900000000 #-g3 -gdwarf-2 
+CXX      = g++
+CC       = gcc
+FC       = gfortran
+.SUFFIXES: .mod
+
+all:	lcd_f90 lcd_cxx 
+
+lcd_f90:	mains.o loops90.o f90_cputime.o
+	$(FC) $(FFLAGS) -o $@ mains.o loops90.o f90_cputime.o $(LDFLAGS)
+
+lcd_ffast:	mains.o loopsfv.o f90_cputime.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_cputime.o $(LDFLAGS)
+
+lcd_cxx:	mains.o loopstl.o f90_cputime.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o $(LDFLAGS)
+
+lcd_cfast:	mains.o loopsv.o f90_cputime.o 
+	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o $(LDFLAGS)
+
+ieee_arithmetic.o:	ieee_arithmetic.F90
+	$(FC) -c $*.F90
+
+ieee_arithmetic.mod:	ieee_arithmetic.F90
+	$(FC) -c $*.F90
+
+lcd_mod.mod:	lcdmod.o
+
+mains.o:	mains.F lcd_mod.mod
+	$(FC) -c $(FFLAGS) -mfpmath=387 $*.F
+
+# set CLOCK_RATE to cpu clock speed of benchmark platform
+f90_cputime.o:	
+	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=2295000000 $*.c
+
+.F.o:
+	$(FC) $(FFLAGS) -c -fopt-info $*.F > $*.txt 2>&1
+
+.f90.o:
+	$(FC) $(FFLAGS) -c $*.f90
+
+.f.o:
+	$(FC) $(FFLAGS) -c $*.f
+
+.cpp.o:
+	$(CXX) $(CXXFLAGS) -c -fopt-info $*.cpp > $*.txt 2>&1
+
+.c.o:
+	$(CC) $(CFLAGS) -c -fopt-info $*.c > $*.txt 2>&1
