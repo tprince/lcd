@@ -3597,7 +3597,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s4117')
       call forttime(t1)
       do nl= 1,ntimes
-	  forall( i= 2:n) a(i)= b(i)+c(i/2)*d(i)
+	  forall( i= 2:n) a(i)= b(i)+c(ishft(i,-1))*d(i)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)

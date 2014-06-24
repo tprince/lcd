@@ -2491,12 +2491,8 @@ C
       do nl= 1,ntimes/n
 	  k= 0
 	  do i= 1,n
-	    do j= 1,n
-	      if(bb(i,j) >  0)then
-		  k= k+1
-		  array(k)= aa(i,j)
-		endif
-	      enddo
+	      array(k+1:k+n)= pack(aa(i,:n),bb(i,:n) > 0)
+	      k= k + count(bb(i,:n) > 0)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -2798,6 +2794,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s423 ')
       call forttime(t1)
       do nl= 1,ntimes
+!dir$ simd
 	array(2:n)= x(:n-1)+a(:n-1)
 	call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo

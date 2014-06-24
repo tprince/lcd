@@ -4329,7 +4329,7 @@ s2102_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
 	cilk_for (int j = 1; j <= i__2; ++j) 
-	    aa[1 + j * aa_dim1:i__3] = (__sec_implicit_index(0)+1)==j;
+	    aa[1 + j * aa_dim1:i__3] = ((int)__sec_implicit_index(0)+1)==j;
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -6763,7 +6763,7 @@ s452_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-      a[1:i__2] = b[1:i__2] + c__[1:i__2] * (__sec_implicit_index(0)+1);
+      a[1:i__2] = b[1:i__2] + c__[1:i__2] * ((int)__sec_implicit_index(0)+1);
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -6818,7 +6818,7 @@ s453_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-	a[1:i__2] = (__sec_implicit_index(0)+1)*2 * b[1:i__2];
+	a[1:i__2] = ((int)__sec_implicit_index(0)+1)*2 * b[1:i__2];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -7392,8 +7392,7 @@ s4117_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-      for (i__ = 2; i__ <= i__2; ++i__)
-	  a[i__] = b[i__] + c__[i__ / 2] * d__[i__];
+      a[2:i__2-1] = b[2:i__2-1] + c__[((int)__sec_implicit_index(0)>>1)+1] * d__[2:i__2-1];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
