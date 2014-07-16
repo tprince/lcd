@@ -1104,7 +1104,7 @@ _mm256_zeroupper();	// icpc uses AVX-128 but not g++
 #ifndef __SUNPRO_CC
 #warning "SSE3/4/AVX unseen, dropping to C source"
 #endif
-#if defined _OPENMP && _OPENMP < 201107 || !defined __INTEL_COMPILER &&__GNUC__ == 4 &&  __GNUC_MINOR__ < 9
+#if defined _OPENMP && _OPENMP < 201107 || __AVX__ && !defined __INTEL_COMPILER
 #pragma omp parallel for if(i__2 > 103)
 #else
 #pragma omp parallel for simd if(i__2 > 103)
@@ -2078,7 +2078,7 @@ s176_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
 	i__3 = i__2 = m;
 #if defined __INTEL_COMPILER
-// Intel MIC and gcc compilers failing to optimize threaded version
+// gcc compilers fail to optimize threaded version
 #pragma omp parallel for if(i__3 > 103)
 	for (i__ = 1; i__ <= i__3; ++i__) {
 	    float sum = 0;
@@ -2403,7 +2403,7 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if defined _OPENMP && _OPENMP >= 201107 && defined __INTEL_COMPILER
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(i__2 > 53)
 	for (int i__ = 1; i__ <= i__2; ++i__) 
 	    for (int j = 2; j <= i__3; ++j)
@@ -2565,7 +2565,7 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
 	      bb[i__ + j * bb_dim1] = bb[i__ - 1 + j*bb_dim1] +
 		    cc[i__ + j * cc_dim1];
 
-#if defined _OPENMP && _OPENMP >= 201107 && defined __INTEL_COMPILER
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp for simd
 	  for (i__ = 2; i__ <= i__2; ++i__)
       for (int j = 2; j <= i__3; ++j)
@@ -2628,7 +2628,7 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
-#if defined _OPENMP && _OPENMP >= 201107 && defined __INTEL_COMPILER
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(*n > 53)
 	for(int i__ = 1; i__<= *n; ++i__)
 	    for(int j = 2; j <= *n; ++j)
@@ -2694,7 +2694,7 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += b[i__] * c__[i__];
-#if defined _OPENMP && _OPENMP >= 201107 && defined __INTEL_COMPILER
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(i__2 > 53)
       for (int i__ = 1; i__ <= i__2; ++i__)
 	  for (int j = 2; j <= i__3; ++j)
@@ -4592,7 +4592,7 @@ s2101_ (integer * ntimes, integer * ld, integer * n, real *
       aa_dim1++,bb_dim1++,cc_dim1++;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __INTEL_COMPILER
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(i__2 > 103)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -5355,10 +5355,12 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 1; j <= i__2; ++j) {
 	  int indxj=0;
 	  float maxj=max__;
-#if __GNUC__ == 4 &&  __GNUC_MINOR__ >= 9 || __INTEL_COMPILER >= 1500
-#pragma omp simd reduction(max: maxj) lastprivate(indxj)
-#elif __INTEL_COMPILER
+#if __INTEL_COMPILER < 1500
+// this is risky (and breaks on MIC with compiler 15.0) but fast when works
 #pragma simd firstprivate(maxj,indxj) lastprivate(maxj,indxj)
+// gcc omp simd reduction lastprivate shows a small loss on AVX
+#elif defined _OPENMP && _OPENMP >= 201107 
+#pragma omp simd reduction(max: maxj) lastprivate(indxj)
 #endif
 	  for (int i__ = 1; i__ <= i__3; ++i__)
 	      if (aa[i__ + j * aa_dim1] > maxj){
@@ -7127,7 +7129,7 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
     int nt= maxt>6? 6:maxt;
 #endif
       i__2 = *n;
-#if defined _OPENMP && _OPENMP < 201107 || !defined __INTEL_COMPILER &&__GNUC__ == 4 &&  __GNUC_MINOR__ < 9
+#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for num_threads(nt) if(i__2 > 103)
 #else
 #pragma omp parallel for simd num_threads(nt) if(i__2 > 103)
@@ -7838,7 +7840,7 @@ s4117_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
       for (i__ = 2; i__ <= i__2; ++i__)
-	  a[i__] = b[i__] + c__[i__ / 2] * d__[i__];
+	  a[i__] = b[i__] + c__[(unsigned)i__ / 2] * d__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

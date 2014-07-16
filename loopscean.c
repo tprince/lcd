@@ -3434,7 +3434,7 @@ s273_ (integer * ntimes, integer * ld, integer * n, real *
   __assume_aligned(d__+1,64);
   __assume_aligned(a+1,64);
       c__[1:i__2] += (a[1:i__2] += d__[1:i__2] * e[1:i__2]) * d__[1:i__2];
-      b[1:i__2] += (a[1:i__2] < 0.f)? d__[1:i__2] * e[1:i__2]: 0.f;
+      b[1:i__2] += (a[1:i__2] < 0.f? d__[1:i__2]: 0.f) * e[1:i__2];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

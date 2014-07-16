@@ -2126,7 +2126,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s2101')
       call forttime(t1)
       do nl= 1,ntimes
-#if __INTEL_COMPILER
+#ifdef __INTEL_COMPILER !! !defined __AVX__
 !$omp parallel do simd if(n>101)
 #endif
 	  do i= 1,n
