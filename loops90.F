@@ -171,11 +171,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s112 ')
       call forttime(t1)
       do nl= 1,ntimes
-! not optimized by ifort, optimized but not vectorized by gfortran
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(4)
-#endif
 	a(n:2:-1)= a(n-1:1:-1)+b(n-1:1:-1)
 	call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo

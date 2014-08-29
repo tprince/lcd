@@ -698,7 +698,9 @@ s119_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
       for (j = 2; j <= i__2; ++j) {
 //OK if i__3 <= aa_dim1 or aa_dim1 >= 64
+#ifndef __MIC__
 #pragma omp simd safelen(32)
+#endif
 	    for (i__ = 2; i__ <= i__3; ++i__) 
 		aa[i__ + j * aa_dim1] = aa[i__ - 1 + (j - 1) * aa_dim1] + bb[
 			i__ + j * bb_dim1];
@@ -1567,9 +1569,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#ifdef __INTEL_COMPILER
 #pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  b[i__] = d__[i__] * e[i__];
 	  s152s_ (&a[1], &b[1], &c__[1], &i__);
@@ -2015,7 +2015,7 @@ s175_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       int len;
-      i__2 = *n - 1;	//should be *n - *inc
+      i__2 = *n - *inc;
       i__3 = *inc;
 #if defined __MIC__ || defined __AVX2__
 #pragma omp simd
@@ -5016,7 +5016,7 @@ s315_ (integer * ntimes, integer * ld, integer * n, real *
       x = a[1];
       index = 1;
       i__2 = *n;
-#if  __INTEL_COMPILER >= 1500
+#if  0
 #pragma omp simd lastprivate(index) reduction(max: x)
 #endif
       for (i__ = 2; i__ <= i__2; ++i__)
@@ -5208,9 +5208,7 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = ABS (a[1]);
       i__2 = *n;
 #if defined _OPENMP 
-#if __INTEL_COMPILER >= 1500
-#pragma omp simd lastprivate(index) reduction(max: max__)
-#elif _OPENMP >= 201107
+#if _OPENMP >= 201107 && !defined __INTEL_COMPILER
 #pragma omp simd lastprivate(index)
 #endif
 #endif
@@ -5355,8 +5353,8 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 1; j <= i__2; ++j) {
 	  int indxj=0;
 	  float maxj=max__;
-#if __INTEL_COMPILER < 1500
-// this is risky (and breaks on MIC with compiler 15.0) but fast when works
+#if __INTEL_COMPILER
+// this is risky (and breaks on MIC with compiler 15.0 beta) but fast when works
 #pragma simd firstprivate(maxj,indxj) lastprivate(maxj,indxj)
 // gcc omp simd reduction lastprivate shows a small loss on AVX
 #elif defined _OPENMP && _OPENMP >= 201107 
@@ -7780,9 +7778,6 @@ s4116_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
       i__2 = *n - 1;
-#if defined _OPENMP && defined __INTEL_COMPILER
-#pragma omp simd reduction(+: sum)
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  sum += a[*inc + i__] * aa[ip[i__] + *j * aa_dim1];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],

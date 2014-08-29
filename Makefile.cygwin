@@ -1,5 +1,6 @@
-CXXFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -Drestrict=__restrict
-CFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -std=c99 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D__assume_aligned=  -ffp-contract=fast
+#past versions of gcc/g++ required -O2 -ftree-vectorize .....
+CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 
+CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -std=c99 -D__assume_aligned=  -ffp-contract=fast
 FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__
 LDFLAGS  =  -lstdc++ -Wl,--stack,900000000 #-g3 -gdwarf-2 
 CXX      = g++

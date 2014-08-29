@@ -1429,7 +1429,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#ifdef __INTEL_COMPILER
+#if defined _OPENMP && _OPENMP >= 201107
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
@@ -4886,9 +4886,7 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = ABS (a[1]);
       i__2 = *n;
 #if defined _OPENMP 
-#if __INTEL_COMPILER >= 1500
-#pragma omp simd lastprivate(index) reduction(max: max__)
-#elif _OPENMP >= 201107
+#if _OPENMP >= 201107 && !defined __INTEL_COMPILER
 #pragma omp simd lastprivate(index)
 #endif
 #endif

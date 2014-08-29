@@ -173,7 +173,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s112 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= n-1,1,-1
@@ -795,7 +795,7 @@ C
       do nl= 1,ntimes
 	  if(k > 0) then
 #if !defined __INTEL_COMPILER 
-#if __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 #else
@@ -1638,7 +1638,7 @@ C
 	      ss= merge(d(i)**2,ss,a(i) > 0.)
 	      s(i) = ss
 	    enddo
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -2364,7 +2364,7 @@ C
 	  x= minval(a(:n))
 #else
 	  x= a(1)
-#if __INTEL_COMPILER >= 1500 || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if __INTEL_COMPILER >= 1500 || _OPENMP >= 201307
 !$omp simd reduction(min: x)
 #endif
 	  do i= 2,n
@@ -3025,7 +3025,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !	x(:n-1)= y(2:n)+a(:n-1)
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n-1
@@ -3058,7 +3058,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s422 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -3090,7 +3090,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s423 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd safelen(32)
 #endif
 	  do i= 1,n-1
@@ -3457,7 +3457,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s491 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC__ == 4 &&  __GNUC_MINOR__ >= 10
+#if defined __INTEL_COMPILER || _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
