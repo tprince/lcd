@@ -1444,15 +1444,15 @@ c
 !$omp end single
 !$omp end parallel
 #endif
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER < 1500
       junk=system("uname -ps > uname.txt")
 #else
-      call execute_command_line("uname -ps > uname.txt")
+      call execute_command_line("uname -ps > uname.txt"//achar(0))
 #endif
       open(11,file='uname.txt',action='READ')
       read(11,'(a)',iostat=ios)txtline
       close(11)
-      cmpter(5)(27:72) = txtline(1:20)
+      cmpter(5)(27:72) = txtline(1:30)
 
       write (*, *) ' '
       write (*, '(a72)') who

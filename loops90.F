@@ -145,10 +145,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s111 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(4)
-#endif
 	a(2:n:2)= a(1:n-1:2)+b(2:n:2)
 	call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -361,10 +357,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s122 ')
       call forttime(t1)
       do nl= 1,ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(4)
-#endif
 	  a(n1:n:n3)= a(n1:n:n3)+b(n:n-(n-n1)/n3:-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -784,10 +776,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s172 ')
       call forttime(t1)
       do nl= 1,ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(4)
-#endif
 	a(n1:n:n3)= a(n1:n:n3)+b(n1:n:n3)
 	call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo

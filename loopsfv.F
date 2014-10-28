@@ -145,10 +145,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s111 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(2)
-#endif
 	  do i= 2,n,2
 	    a(i)= a(i-1)+b(i)
 	    enddo
@@ -379,10 +375,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s122 ')
       call forttime(t1)
       do nl= 1,ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(4)
-#endif
 	  a(n1:n:n3)= a(n1:n:n3)+b(n:n-(n-n1)/n3:-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -554,7 +546,7 @@ C
       call forttime(t1)
       do nl= 1,2*ntimes
 	  j= 0
-#ifndef __MIC__
+#if 0
 !dir$ no vector
 !dir$ unroll(4)
 #endif
@@ -849,10 +841,6 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s172 ')
       call forttime(t1)
       do nl= 1,ntimes
-#ifndef __MIC__
-!dir$ no vector
-!dir$ unroll(2)
-#endif
 	    a(n1:n:n3)= a(n1:n:n3)+b(n1:n:n3)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -901,8 +889,8 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s174 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-! suppress ifort memcpy
-!dir$ simd
+! suppress past ifort memcpy
+!!dir$ simd
 	  do i= 1,n/2
 	    a(i)= a(i+n/2)+b(i)
 	    enddo
@@ -1912,9 +1900,9 @@ C
 !dir$ vector aligned
 	  do i= 1,n
 	      if(a(i) > 0.)then
-		c(i)= -c(i)+e(i)*e(i)
+		c(i)= e(i)**2-c(i)
 		else
-		    b(i)= -b(i)+d(i)*d(i)
+		    b(i)= d(i)**2-b(i)
 		    c(i)= c(i)+merge(d(i),0.,b(i) > a(i))*e(i)
 		endif
 	    enddo
@@ -2126,7 +2114,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s2101')
       call forttime(t1)
       do nl= 1,ntimes
-#ifdef __INTEL_COMPILER !! !defined __AVX__
+#if defined __INTEL_COMPILER || !defined __AVX__
 !$omp parallel do simd if(n>101)
 #endif
 	  do i= 1,n
@@ -2297,7 +2285,7 @@ C
 	  x= maxval(a(:n))
 #else
 	  x= a(1)
-!dir$ simd reduction(max: x)
+!$omp simd reduction(max: x)
 	  do i= 2,n
 	    if(a(i) > x)then
 	      x= a(i)
@@ -3304,7 +3292,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !$omp parallel do num_threads(min(maxt,omp_get_max_threads())) if(n>103)
-!dir$ vector nontemporal
+!!dir$ vector nontemporal
 	  do i= 1,n
 	    a(i)= sin(b(i))+cos(c(i))
 	  enddo

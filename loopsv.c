@@ -1569,7 +1569,9 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if  __INTEL_COMPILER
 #pragma omp simd
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  b[i__] = d__[i__] * e[i__];
 	  s152s_ (&a[1], &b[1], &c__[1], &i__);
@@ -1840,12 +1842,8 @@ s172_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
       i__3 = *n3;
       len = (i__2-*n1)/i__3+1;
-#if defined  __AVX__ && defined __INTEL_COMPILER
-      a[*n1:len:i__3] += b[*n1:len:i__3];
-#else
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
 	  a[i__] += b[i__];
-#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -7946,9 +7944,9 @@ va_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-      memcpy(&a[1],&b[1],i__2*sizeof(a[1]));
-//      for (i__ = 1; i__ <= i__2; ++i__)
-//	  a[i__] = b[i__];
+//      memcpy(&a[1],&b[1],i__2*sizeof(a[1]));
+      for (i__ = 1; i__ <= i__2; ++i__)
+	  a[i__] = b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

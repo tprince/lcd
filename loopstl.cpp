@@ -1429,7 +1429,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined __INTEL_COMPILER
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
