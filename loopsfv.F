@@ -546,14 +546,13 @@ C
       call forttime(t1)
       do nl= 1,2*ntimes
 	  j= 0
-#if 0
+#if !defined __MIC__
 !dir$ no vector
 !dir$ unroll(4)
 #endif
 	  do i= 1,n/2
-	      k= j+1
+	      k= i*2-1
 	      a(i)= b(k)-d(i)
-	      j= k+1
 	      b(k)= a(i)+c(k)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
