@@ -1238,8 +1238,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma unroll(4)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
-	  a[i__] = b[k = j + 1] - d__[i__];
-	  j = k + 1;
+	  a[i__] = b[k = i__*2-1] - d__[i__];
 	  b[k] = a[i__] + c__[k];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -2273,7 +2272,7 @@ s221_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #pragma unroll(4)
       for (i__ = 2; i__ <= i__2; ++i__)
-#ifdef __MIC__
+#if defined __MIC__ || !defined __INTEL_COMPILER
 	  a[i__] += c__[i__] * d__[i__];
       for (i__ = 2; i__ <= i__2; ++i__)
 	  b[i__] = a[i__] + d__[i__] + b[i__ - 1];
