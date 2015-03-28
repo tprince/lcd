@@ -169,7 +169,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s112 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= n-1,1,-1
@@ -546,7 +546,7 @@ C
       call forttime(t1)
       do nl= 1,2*ntimes
 	  j= 0
-#if !defined __MIC__
+#if 0
 !dir$ no vector
 !dir$ unroll(4)
 #endif
@@ -786,7 +786,7 @@ C
       do nl= 1,ntimes
 	  if(k > 0) then
 #if !defined __INTEL_COMPILER 
-#if _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 #else
@@ -1558,7 +1558,7 @@ C
         !dir$ distribute point
 C ifort is sensitive to operand order
 	    aa(:n,j)= aa(:n,j)+bb(:n,j)-a(j-1)
-	    a(j)=aa(n,j)-bb(n,j)
+	    a(j)=aa(n,j)-a(j-1)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -1625,7 +1625,7 @@ C
 	      ss= merge(d(i)**2,ss,a(i) > 0.)
 	      s(i) = ss
 	    enddo
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined __INTEL_COMPILER || defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -2351,7 +2351,7 @@ C
 	  x= minval(a(:n))
 #else
 	  x= a(1)
-#if __INTEL_COMPILER >= 1500 || _OPENMP >= 201307
+#if __INTEL_COMPILER >= 1500 || defined _OPENMP && _OPENMP >= 201307
 !$omp simd reduction(min: x)
 #endif
 	  do i= 2,n
@@ -3012,7 +3012,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !	x(:n-1)= y(2:n)+a(:n-1)
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n-1
@@ -3045,7 +3045,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s422 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -3077,7 +3077,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s423 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd safelen(32)
 #endif
 	  do i= 1,n-1
@@ -3444,7 +3444,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s491 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n

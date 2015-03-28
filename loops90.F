@@ -1377,7 +1377,7 @@ C
         !dir$ distribute point
 C ifort is sensitive to operand order
 	    aa(:n,j)= aa(:n,j)+bb(:n,j)-a(j-1)
-	    a(j)=aa(n,j)-bb(n,j)
+	    a(j)=aa(n,j)-a(j-1)
 	  enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -2906,6 +2906,7 @@ C
       do nl= 1,ntimes
 #if defined __INTEL_COMPILER
 !$omp parallel do num_threads(2) if(n>103)
+!dir$ no vector
 #endif
 	  do i= 1,n
 	      select case(indx(i))

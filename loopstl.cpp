@@ -1117,8 +1117,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
       j = 0;
       i__2 = *n / 2;
       for (i__ = 1; i__ <= i__2; ++i__) {
-	  a[i__] = b[k = j + 1] - d__[i__];
-	  j = k + 1;
+	  a[i__] = b[k = i__*2-1] - d__[i__];
 	  b[k] = a[i__] + c__[k];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -3075,7 +3074,7 @@ s256_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 2; j <= i__3; ++j){
 	  for (i__ = 1; i__ <= i__2; ++i__) 
 	      aa[i__ + j * aa_dim1] += - a[j-1] + bb[i__ + j * bb_dim1];
-	    a[j]= aa[i__2 + j * aa_dim1] - bb[i__2 + j * bb_dim1];
+	    a[j]= aa[i__2 + j * aa_dim1] - a[j-1];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -4954,11 +4953,9 @@ s319_ (integer * ntimes, integer * ld, integer * n, real *
   i__2 = *n;
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
-      for (i__ = 1; i__ <= i__2; ++i__) {
-	  a[i__] = c__[i__] + d__[i__];
-	  b[i__] = c__[i__] + e[i__];
-	    sum += a[i__] + b[i__];
-	}
+      for (i__ = 1; i__ <= i__2; ++i__)
+	sum += (( a[i__] = c__[i__] + d__[i__])+
+	  (b[i__] = c__[i__] + e[i__]));
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &sum);
     }

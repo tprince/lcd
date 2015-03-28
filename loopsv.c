@@ -2400,7 +2400,7 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if _OPENMP >= 201107 && defined __INTEL_COMPILER
 #pragma omp parallel for simd if(i__2 > 53)
 	for (int i__ = 1; i__ <= i__2; ++i__) 
 	    for (int j = 2; j <= i__3; ++j)
@@ -2562,7 +2562,7 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
 	      bb[i__ + j * bb_dim1] = bb[i__ - 1 + j*bb_dim1] +
 		    cc[i__ + j * cc_dim1];
 
-#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if _OPENMP >= 201107 && defined __INTEL_COMPILER
 #pragma omp for simd
 	  for (i__ = 2; i__ <= i__2; ++i__)
       for (int j = 2; j <= i__3; ++j)
@@ -2625,7 +2625,7 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
-#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if _OPENMP >= 201107 && defined __INTEL_COMPILER
 #pragma omp parallel for simd if(*n > 53)
 	for(int i__ = 1; i__<= *n; ++i__)
 	    for(int j = 2; j <= *n; ++j)
@@ -2691,7 +2691,7 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += b[i__] * c__[i__];
-#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if _OPENMP >= 201107 && defined __INTEL_COMPILER
 #pragma omp parallel for simd if(i__2 > 53)
       for (int i__ = 1; i__ <= i__2; ++i__)
 	  for (int j = 2; j <= i__3; ++j)
@@ -3330,7 +3330,7 @@ s256_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 2; j <= i__3; ++j){
 	  for (i__ = 1; i__ <= i__2; ++i__) 
 	      aa[i__ + j * aa_dim1] += - a[j-1] + bb[i__ + j * bb_dim1];
-	    a[j]= aa[i__2 + j * aa_dim1] - bb[i__2 + j * bb_dim1];
+	    a[j]= aa[i__2 + j * aa_dim1] - a[j-1];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

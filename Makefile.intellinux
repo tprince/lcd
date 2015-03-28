@@ -1,40 +1,40 @@
-CXXFLAGS = -O3 -ansi-alias -restrict -openmp -msse4.1 -opt-report-file=$*_opt.txt -g
-CFLAGS = -O3 -ansi-alias -std=c99 -openmp -msse4.1 -opt-report-file=$*_opt.txt -g
-FFLAGS   = -O3 -openmp -assume protect_parens -msse4.1 -align array32byte -opt-report-file=$*_opt.txt -g
+CXXFLAGS = -O3 -ansi-alias -restrict -qopenmp -msse4.1 -qopt-report-file=$*_opt.txt -g -qopt-report4
+CFLAGS = -O3 -ansi-alias -std=c99 -qopenmp -msse4.1 -qopt-report-file=$*_opt.txt -g -qopt-report4
+FFLAGS   = -O3 -qopenmp -assume protect_parens -msse4.1 -align array32byte -qopt-report-file=$*_opt.txt -g -qopt-report4
 LDFLAGS  = -lstdc++ 
 CXX      = icpc
 CC       = icc
 FC       = ifort
 
-all:	lcd_f90 lcd_cxx lcdmod.o
+all:	lcd_f90 lcd_cxx 
 
-lcd_f90:	mains.o loops90.o f90_msrdtsc.o
+lcd_f90:	mains.o loops90.o f90_msrdtsc.o lcd_mod.mod
 	$(FC) $(FFLAGS) -o $@ mains.o loops90.o f90_msrdtsc.o $(LDFLAGS)
 
-lcd_ffast:	mains.o loopsfv.o f90_msrdtsc.o
+lcd_ffast:	mains.o loopsfv.o f90_msrdtsc.o lcd_mod.mod
 	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_msrdtsc.o $(LDFLAGS)
 
 lcd_cxx:	mains.o loopstl.o f90_msrdtsc.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_msrdtsc.o $(LDFLAGS)
 
-lcd_cean:	mains.o loopscean.o f90_msrdtsc.o
-	$(FC) $(FFLAGS) -o $@ mains.o loopscean.o f90_msrdtsc.o -lcilkrts
-
 lcd_cfast:	mains.o loopsv.o f90_msrdtsc.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_msrdtsc.o $(LDFLAGS)
 
-mains.o:	mains.F
-	$(FC) $(FFLAGS) -mp -c -openmp $*.F
+lcd_cean:	mains.o loopscean.o f90_msrdtsc.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopscean.o f90_msrdtsc.o -lcilkrts
+
+mains.o:	mains.F lcd_mod.mod
+	$(FC) $(FFLAGS) -fp-model source -c -qopenmp $*.F
 
 # set CLOCK_RATE to cpu clock speed of benchmark platform
 f90_msrdtsc.o:	
-	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=3326000000 $*.c
+	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=3193000000 $*.c
+
+lcd_mod.mod:
+	$(FC) $(FFLAGS) -c lcdmod.f90
 
 .F.o:
 	$(FC) $(FFLAGS) -c $*.F
-
-.f90.o:
-	$(FC) $(FFLAGS) -c $*.f90
 
 .f.o:
 	$(FC) $(FFLAGS) -c $*.f
