@@ -22,6 +22,9 @@ lcd_cxx:	mains.o loopstl.o f90_cputime.o
 lcd_cfast:	mains.o loopsv.o f90_cputime.o 
 	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o $(LDFLAGS)
 
+lcd_cean:	mains.o loopscean.o f90_cputime.o
+	$(FC) -fcilkplus $(FFLAGS) -o $@ mains.o loopscean.o f90_cputime.o $(LDFLAGS)
+
 ieee_arithmetic.o:	ieee_arithmetic.F90
 	$(FC) -c $*.F90
 

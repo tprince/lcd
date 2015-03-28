@@ -3330,7 +3330,7 @@ s256_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 2; j <= i__3; ++j){
 	  for (i__ = 1; i__ <= i__2; ++i__) 
 	      aa[i__ + j * aa_dim1] += - a[j-1] + bb[i__ + j * bb_dim1];
-	    a[j]= aa[i__2 + j * aa_dim1] - a[j-1];
+	    a[j]= aa[i__2 + j * aa_dim1] - bb[i__2 + j * bb_dim1];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

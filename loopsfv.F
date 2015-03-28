@@ -1558,7 +1558,7 @@ C
         !dir$ distribute point
 C ifort is sensitive to operand order
 	    aa(:n,j)= aa(:n,j)+bb(:n,j)-a(j-1)
-	    a(j)=aa(n,j)-a(j-1)
+	    a(j)=aa(n,j)-bb(n,j)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
