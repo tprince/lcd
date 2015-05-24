@@ -223,7 +223,7 @@ C
 #if defined __MIC__
 !dir$ no vector
 #else
-!dir$ simd
+!$ omp simd
 !dir$ unroll(2)
 #endif
 		do i=1,j-1
@@ -630,9 +630,10 @@ C
       USE omp_lib
 #endif
       integer ntimes,ld,n,i,nl,j,k,nn
+      integer nt,m,jbeg,jend
+      real avgchunk
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d,array
-      integer nj(n)
       parameter(nn= 1000)
       common/cdata /array(nn*nn)
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s141 ')
@@ -1125,6 +1126,8 @@ C
       USE omp_lib
 #endif
       integer ntimes,ld,n,i,nl,j
+      integer nt,m,jbeg,jend
+      real avgchunk
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs2d
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s232 ')
@@ -1264,12 +1267,13 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s235 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-          a(:n)= a(:n)+b(:n)*c(:n)
 #ifdef __INTEL_COMPILER
 !$omp parallel do if(n>103)
 	  do i=1,n
+	      a(i)= a(i)+b(i)*c(i)
 	      do j= 2,n
 #else
+          a(:n)= a(:n)+b(:n)*c(:n)
 	      do j= 2,n
 	  do i=1,n
 #endif
@@ -2286,9 +2290,7 @@ C
 	  x= a(1)
 !$omp simd reduction(max: x)
 	  do i= 2,n
-	    if(a(i) > x)then
-	      x= a(i)
-	      endif
+	    if(a(i) > x) x= a(i)
 	    enddo
 #endif
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
@@ -2351,13 +2353,11 @@ C
 	  x= minval(a(:n))
 #else
 	  x= a(1)
-#if __INTEL_COMPILER >= 1500 || defined _OPENMP && _OPENMP >= 201307
+#if defined _OPENMP && _OPENMP >= 201307
 !$omp simd reduction(min: x)
 #endif
 	  do i= 2,n
-	    if(a(i) < x)then
-	      x= a(i)
-	      endif
+	    if(a(i) < x) x= a(i)
 	    enddo
 #endif
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)

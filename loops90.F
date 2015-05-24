@@ -590,7 +590,9 @@ C
 #ifdef _OPENMP
       USE omp_lib
 #endif
-      integer ntimes,ld,n,i,nl,j,k,nn,indx
+      integer ntimes,ld,n,i,nl,j,k,nn
+      integer nt,m,jbeg,jend
+      real avgchunk
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d,array
       parameter(nn= 1000)
@@ -1017,6 +1019,8 @@ C
       USE omp_lib
 #endif
       integer ntimes,ld,n,i,nl,j
+      integer nt,m,jbeg,jend
+      real avgchunk
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs2d
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s232 ')

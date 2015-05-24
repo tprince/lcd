@@ -1382,6 +1382,9 @@ c
 #ifdef __MIC__
      &' Vec. register length:    16',
      &' No. functional units:    1',
+#elif defined __AVX2__
+     &' Vec. register length:    8',
+     &' No. functional units:    1 add, 2 multiply-add',
 #elif defined __AVX__
      &' Vec. register length:    8',
      &' No. functional units:    1 add, 1 multiply',
@@ -1447,7 +1450,7 @@ c
 #if __INTEL_COMPILER < 1500
       junk=system("uname -ps > uname.txt")
 #else
-      call execute_command_line("uname -ps > uname.txt"//achar(0))
+      call execute_command_line("uname -ps > uname.txt")
 #endif
       open(11,file='uname.txt',action='READ')
       read(11,'(a)',iostat=ios)txtline

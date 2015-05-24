@@ -4885,7 +4885,7 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = ABS (a[1]);
       i__2 = *n;
 #if defined _OPENMP 
-#if _OPENMP >= 201107 && !defined __INTEL_COMPILER
+#if _OPENMP >= 201107
 #pragma omp simd lastprivate(index)
 #endif
 #endif

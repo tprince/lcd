@@ -1,7 +1,8 @@
 #past versions of gcc/g++ required -O2 -ftree-vectorize .....
 CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 
-CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -std=c99 -D__assume_aligned=  -ffp-contract=fast
-FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__
+CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 -std=c99 -D__assume_aligned=  -ffp-contract=fast
+
+FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__ -D__AVX2__
 LDFLAGS  =  -lstdc++ -Wl,--stack,900000000 #-g3 -gdwarf-2 
 CXX      = g++
 CC       = gcc
@@ -19,8 +20,8 @@ lcd_ffast:	mains.o loopsfv.o f90_cputime.o
 lcd_cxx:	mains.o loopstl.o f90_cputime.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o $(LDFLAGS)
 
-lcd_cfast:	mains.o loopsv.o f90_cputime.o 
-	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o $(LDFLAGS)
+lcd_cfast:	mains.o loopsv.o loopsvp.o f90_cputime.o 
+	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o loopsvp.o f90_cputime.o $(LDFLAGS)
 
 lcd_cean:	mains.o loopscean.o f90_cputime.o
 	$(FC) -fcilkplus $(FFLAGS) -o $@ mains.o loopscean.o f90_cputime.o $(LDFLAGS)
@@ -39,6 +40,13 @@ mains.o:	mains.F lcd_mod.mod
 # set CLOCK_RATE to cpu clock speed of benchmark platform
 f90_cputime.o:	
 	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=2295000000 $*.c
+
+#avoid gcc bug by not combining fast-math -march and openmp at -O3
+loopsv.o:	
+	$(CC) $(CFLAGS) -ffast-math -c $*.c
+
+loopsvp.o:	
+	$(CC) $(CFLAGS) -fopenmp -c $*.c
 
 .F.o:
 	$(FC) $(FFLAGS) -c -fopt-info $*.F > $*.txt 2>&1
