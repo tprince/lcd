@@ -1,5 +1,5 @@
 #past versions of gcc/g++ required -O2 -ftree-vectorize .....
-CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 
+CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 
 CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 -std=c99 -D__assume_aligned=  -ffp-contract=fast
 
 FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__ -D__AVX2__
@@ -17,8 +17,8 @@ lcd_f90:	mains.o loops90.o f90_cputime.o
 lcd_ffast:	mains.o loopsfv.o f90_cputime.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_cputime.o $(LDFLAGS)
 
-lcd_cxx:	mains.o loopstl.o f90_cputime.o
-	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o $(LDFLAGS)
+lcd_cxx:	mains.o loopstl.o loopstlp.o f90_cputime.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o loopstlp.o f90_cputime.o $(LDFLAGS)
 
 lcd_cfast:	mains.o loopsv.o loopsvp.o f90_cputime.o 
 	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o loopsvp.o f90_cputime.o $(LDFLAGS)
@@ -47,6 +47,12 @@ loopsv.o:
 
 loopsvp.o:	
 	$(CC) $(CFLAGS) -fopenmp -c $*.c
+
+loopstl.o:	
+	$(CC) $(CXXFLAGS) -ffast-math -c $*.cpp
+
+loopstlp.o:	
+	$(CC) $(CXXFLAGS) -fopenmp -c $*.cpp
 
 .F.o:
 	$(FC) $(FFLAGS) -c -fopt-info $*.F > $*.txt 2>&1

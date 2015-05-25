@@ -14,8 +14,8 @@ lcd_f90:	mains.o loops90.o f90_msrdtsc.o lcd_mod.mod
 lcd_ffast:	mains.o loopsfv.o f90_msrdtsc.o lcd_mod.mod
 	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_msrdtsc.o $(LDFLAGS)
 
-lcd_cxx:	mains.o loopstl.o f90_msrdtsc.o
-	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_msrdtsc.o $(LDFLAGS)
+lcd_cxx:	mains.o loopstl.o f90_msrdtsc.o loopstlp.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o loopstlp.o f90_msrdtsc.o $(LDFLAGS)
 
 lcd_cfast:	mains.o loopsv.o f90_msrdtsc.o loopsvp.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o loopsvp.o f90_msrdtsc.o $(LDFLAGS)

@@ -27,13 +27,13 @@ lcd_ffast:	mains.obj loopsfv.obj f90_msrdtsc.obj
 	mv mains.exe $@.exe
 	mv mains.pdb $@.pdb
 
-lcd_cxxi:	mains.obj loopstli.obj f90_msrdtsc.obj
-	$(FC) $(FFLAGS) mains.obj loopstli.obj f90_msrdtsc.obj $(LDFLAGS)
+lcd_cxxi:	mains.obj loopstli.obj f90_msrdtsc.obj loopstlpi.obj
+	$(FC) $(FFLAGS) mains.obj loopstli.obj loopstlpi.obj f90_msrdtsc.obj $(LDFLAGS)
 	mv mains.exe $@.exe
 	mv mains.pdb $@.pdb
 
-lcd_cxxm:	mains.obj loopstlm.obj f90_msrdtsc.obj
-	$(FC) $(FFLAGS) mains.obj loopstlm.obj f90_msrdtsc.obj $(LDFLAGS)
+lcd_cxxm:	mains.obj loopstlm.obj f90_msrdtsc.obj loopstlpm.obj
+	$(FC) $(FFLAGS) mains.obj loopstlm.obj loopstlpm.obj f90_msrdtsc.obj $(LDFLAGS)
 	mv mains.exe $@.exe
 	mv mains.pdb $@.pdb
 
@@ -55,6 +55,14 @@ mains.obj:	mains.F lcd_mod.mod
 loopstli.obj:	loopstl.cpp
 	$(CXXI) $(CXXIFLAGS) -c loopstl.cpp
 	mv loopstl.obj $@
+
+loopstlpi.obj:	loopstlp.cpp
+	$(CXXI) $(CXXIFLAGS) -c loopstlp.cpp
+	mv loopstlp.obj $@
+
+loopstlpm.obj:	loopstlp.cpp
+	$(CXXM) $(CXXMFLAGS) /Qvec-report:1 -c loopstlp.cpp > loopstlpm.txt 2>&1
+	mv loopstlp.obj $@
 
 loopstlm.obj:	loopstl.cpp
 	$(CXXM) $(CXXMFLAGS) /Qvec-report:1 -c loopstl.cpp > loopstlm.txt 2>&1

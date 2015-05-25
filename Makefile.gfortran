@@ -1,5 +1,5 @@
-CXXFLAGS = -O3 -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone  -ftree-vectorize -fopenmp -D"restrict "=__restrict -funroll-loops --param max-unroll-times=4  -ffast-math -march=native
-CFLAGS = -O2 -ftree-vectorize -finline-functions -funswitch-loops -fpredictive-commoning -fgcse-after-reload -ftree-slp-vectorize -ftree-partial-pre -fipa-cp-clone -fopenmp -std=c99 -funroll-loops --param max-unroll-times=4  -march=native -ffast-math -fcilkplus -D__assume_aligned= 
+CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=4 -march=native
+CFLAGS = -O3 -std=c99 -funroll-loops --param max-unroll-times=4  -march=native -D__assume_aligned= 
 # -fassociative-math works nearly as well as fast-math with recent gfortran 4.3
 # It is preferred for vectorizable code.
 FFLAGS   = -O3 -ftree-vectorize -fopenmp  -funroll-loops --param max-unroll-times=4  -ffast-math -D__SSE4_1__ -D__SSE2__ -march=native
@@ -18,14 +18,14 @@ lcd_f90:	mains.o loops90.o f90_cputime.o ieee_arithmetic.o ieee_arith.o lcd_mod.
 lcd_ffast:	mains.o loopsfv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o lcd_mod.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopsfv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
 
-lcd_cxx:	mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
-	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+lcd_cxx:	mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o loopstlp.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopstl.o f90_cputime.o ieee_arithmetic.o ieee_arith.o loopstlp.o $(LDFLAGS)
 
 lcd_cean:	mains.o loopscean.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
 	$(FC) $(FFLAGS) -o $@ mains.o loopscean.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS) -lcilkrts
 
-lcd_cfast:	mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o
-	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o $(LDFLAGS)
+lcd_cfast:	mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o loopsvp.o
+	$(FC) $(FFLAGS) -o $@ mains.o loopsv.o f90_cputime.o ieee_arithmetic.o ieee_arith.o loopsvp.o $(LDFLAGS)
 
 ieee_arithmetic.o:	ieee_arithmetic.F90
 	$(FC) $(FFLAGS) -c $*.F90
@@ -42,6 +42,18 @@ f90_cputime.o:
 
 .F.o:
 	$(FC) $(FFLAGS) -c $*.F
+
+loopsv.o:	loopsv.c
+	$(CC) $(CFLAGS) -ffast-math -c $*.c
+
+loopsvp.o:	loopsvp.c
+	$(CC) $(CFLAGS) -fopenmp -c $*.c
+
+loopstl.o:	loopstl.cpp
+	$(CXX) $(CXXFLAGS) -ffast-math -c $*.cpp
+
+loopstlp.o:	loopstlp.cpp
+	$(CXX) $(CXXFLAGS) -fopenmp -c $*.cpp
 
 lcd_mod.o:
 	$(FC) $(FFLAGS) -c lcdmod.f90
