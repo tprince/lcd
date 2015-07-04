@@ -1,6 +1,6 @@
 #past versions of gcc/g++ required -O2 -ftree-vectorize .....
 CXXFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 
-CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 -std=c99 -D__assume_aligned=  -ffp-contract=fast
+CFLAGS = -O3 -funroll-loops --param max-unroll-times=2 -march=native -g3 -gdwarf-2 -std=c99 -D__assume_aligned= -fcilkplus -ffp-contract=fast
 
 FFLAGS   = -O3  -funroll-loops --param max-unroll-times=2 -ffast-math -march=native -fopenmp -g3 -gdwarf-2 -D___SSE2__ -D__SSE4_1__ -D__AVX__ -D__AVX2__
 LDFLAGS  =  -lstdc++ -Wl,--stack,900000000 #-g3 -gdwarf-2 
@@ -42,17 +42,17 @@ f90_cputime.o:
 	$(CC) $(CXXFLAGS) -c -DCLOCK_RATE=2295000000 $*.c
 
 #avoid gcc bug by not combining fast-math -march and openmp at -O3
-loopsv.o:	
+loopsv.o:	loopsv.c
 	$(CC) $(CFLAGS) -ffast-math -c $*.c
 
-loopsvp.o:	
+loopsvp.o:	loopsvp.c
 	$(CC) $(CFLAGS) -fopenmp -c $*.c
 
-loopstl.o:	
-	$(CC) $(CXXFLAGS) -ffast-math -c $*.cpp
+loopstl.o:	loopstl.cpp
+	$(CXX) $(CXXFLAGS) -ffast-math -c $*.cpp
 
-loopstlp.o:	
-	$(CC) $(CXXFLAGS) -fopenmp -c $*.cpp
+loopstlp.o:	loopstlp.cpp
+	$(CXX) $(CXXFLAGS) -fopenmp -c $*.cpp
 
 .F.o:
 	$(FC) $(FFLAGS) -c -fopt-info $*.F > $*.txt 2>&1

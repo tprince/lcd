@@ -280,9 +280,6 @@ s115_ (integer * ntimes, integer * ld, integer * n, real *
 	for (j = 2; j <= i__2; ++j) {
 	    float sum = 0;
 	    i__3 = j-1;
-#if defined _OPENMP && _OPENMP >= 201107
-#pragma omp simd reduction(+: sum)
-#endif
 	    for (i__ = 1; i__ <= i__3; ++i__) 
 		sum += aa[i__ + j * aa_dim1] * a[i__];
 	    a[j] -= sum;

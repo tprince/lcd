@@ -3856,7 +3856,13 @@ s3112_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
       i__2 = *n;
-      for (i__ = 1; i__ <= i__2; ++i__)
+      for (i__ = 1; i__ <= i__2-3; i__+= 4){
+	  b[i__] = sum + a[i__];
+	  b[i__+1] = sum + (a[i__]+a[i__+1]);
+	  b[i__+2] = sum + (a[i__]+a[i__+1]+a[i__+2]);
+	  b[i__+3] = sum += (a[i__]+a[i__+1]+a[i__+2]+a[i__+3]);
+	  }
+      for (; i__ <= i__2; ++i__)
 	  b[i__] = sum += a[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &chksum);
@@ -3968,9 +3974,10 @@ s321_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
+      float tmp = a[1];
       i__2 = *n;
       for (i__ = 2; i__ <= i__2; ++i__)
-	  a[i__] += a[i__ - 1] * b[i__];
+	  a[i__] = tmp = a[i__] + tmp * b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -4081,11 +4088,11 @@ s323_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
+      float tmp = b[1];
       i__2 = *n;
-#pragma unroll(4)
       for (i__ = 2; i__ <= i__2; ++i__) {
-	  a[i__] = b[i__ - 1] + c__[i__] * d__[i__];
-	  b[i__] = b[i__ - 1] + c__[i__] * (e[i__]+d__[i__]);
+	  a[i__] = tmp + c__[i__] * d__[i__];
+	  b[i__] =  tmp += c__[i__] * (e[i__]+d__[i__]);
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

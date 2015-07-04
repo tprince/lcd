@@ -233,6 +233,9 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp parallel for if(i__2 > 101)
       for (j = 2; j <= i__2; ++j) {
 	  int i__3 = j - 1;
+#if defined _OPENMP && _OPENMP >= 201107 && ! __MIC__
+#pragma omp simd
+#endif
 	  for (int i__ = 1; i__ <= i__3; ++i__)
 	      aa[i__ + j * aa_dim1] = aa[j + i__ * aa_dim1] + bb[i__ + j *
 								 bb_dim1];
@@ -851,13 +854,20 @@ s176_ (integer * ntimes, integer * ld, integer * n, real *
 	 &bb[bb_offset], &cc[cc_offset], "s176 ", (ftnlen) 5);
   forttime_ (&t1);
   i__1 = (*ntimes << 2) / *n;
+	i__3 = i__2 = m;
   for (nl = 1; nl <= i__1; ++nl) {
+#if defined __INTEL_COMPILER
       // set up class in reverse order; count time spent
-      vector<float> Cr(i__3 = m);
+      vector<float> Cr(m);
       reverse_copy(&c__[1],&c__[i__3]+1,Cr.begin());
 #pragma omp parallel for if(i__3 > 103)
     for (i__ = 1; i__ <= i__3; ++i__) 
 	a[i__] += inner_product(Cr.begin(),Cr.end(),&b[i__],0.f);
+#else
+	for (i__ = 1; i__ <= i__3; ++i__) 
+	    for (int j = 1; j <= i__2; ++j) 
+		a[j] += b[j+i__2-i__] * c__[i__];
+#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -1318,8 +1328,9 @@ s273_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
-	  c__[i__] += (a[i__] += d__[i__] * e[i__]) * d__[i__];
-	  b[i__] += (a[i__] < 0.f)? d__[i__] * e[i__]: 0.f;
+	  float tmp= d__[i__] * e[i__];
+	  c__[i__] += (a[i__] += tmp) * d__[i__];
+	  b[i__] += (a[i__] < 0.f)? tmp: 0.f;
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

@@ -1918,10 +1918,8 @@ s176_ (integer * ntimes, integer * ld, integer * n, real *
   __assume_aligned(a+1,64);
 	if(m > 201)cilk_for (int i__ = 1; i__ <= m; ++i__) 
 	    a[i__] += __sec_reduce_add(b[i__:m]*c__[m:m:-1]);
-	else for (int i__ = 1; i__ <= m; ++i__){
-	    float tmp = c__[i__];
-	    a[1:m] += b[1+m-i__:m]*tmp;
-	    }
+	else for (int i__ = 1; i__ <= m; ++i__)
+	    a[1:m] += b[1+m-i__:m]*c__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -4274,7 +4272,12 @@ s2101_ (integer * ntimes, integer * ld, integer * n, real *
       aa_dim1++,bb_dim1++,cc_dim1++;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if __INTEL_COMPILER >= 1600 && ! __MIC__
+      cilk_for _Simd (i__ = 1; i__ <= i__2; ++i__)
+	  aa[i__ * aa_dim1] += bb[i__ * bb_dim1] * cc[i__ * cc_dim1];
+#else
       aa[aa_dim1:i__2:aa_dim1] += bb[bb_dim1:i__2:bb_dim1] * cc[cc_dim1:i__2:cc_dim1];
+#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
