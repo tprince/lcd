@@ -661,12 +661,13 @@ c
 
 
       real function cs1d(n,a)
+      use iso_fortran_env
 c
 c --  calculate one-dimensional checksum
 c
       integer i,n
       real a(n)
-      real*8 sum
+      real(real64) sum
       sum = 0.0
       do 10 i = 1,n
          sum = sum + a(i)
@@ -676,13 +677,14 @@ c
       end
 
       real function cs2d(n,aa)
+      use iso_fortran_env
 c
 c --  calculate two-dimensional checksum
 c
       integer i,j,n,ld
       parameter(ld=1000)
       real aa(ld,n)
-      real*8 sum
+      real(real64) sum
       sum = 0.0
       do 10 j = 1,n
          do 20 i = 1,n

@@ -1,5 +1,5 @@
 CXXFLAGS = -O3 -ansi-alias -restrict -qopenmp -msse4.1 -qopt-report-file=$*_opt.txt -g -qopt-report4
-CFLAGS = -O3 -ansi-alias -std=c99 -qopenmp -msse4.1 -qopt-report-file=$*_opt.txt -g -qopt-report4
+CFLAGS = -O3 -ansi-alias -std=c99 -qopenmp -msse4.1 -qopt-report-file=$*_opt.txt -g -qopt-report4 -fprotect-parens
 FFLAGS   = -O3 -qopenmp -assume protect_parens -msse4.1 -align array32byte -qopt-report-file=$*_opt.txt -g -qopt-report4
 LDFLAGS  = -lstdc++ 
 CXX      = icpc

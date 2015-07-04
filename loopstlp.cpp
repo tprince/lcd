@@ -233,6 +233,9 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp parallel for if(i__2 > 101)
       for (j = 2; j <= i__2; ++j) {
 	  int i__3 = j - 1;
+#if defined _OPENMP && _OPENMP >= 201107 && ! __MIC__
+#pragma omp simd
+#endif
 	  for (int i__ = 1; i__ <= i__3; ++i__)
 	      aa[i__ + j * aa_dim1] = aa[j + i__ * aa_dim1] + bb[i__ + j *
 								 bb_dim1];
@@ -851,13 +854,20 @@ s176_ (integer * ntimes, integer * ld, integer * n, real *
 	 &bb[bb_offset], &cc[cc_offset], "s176 ", (ftnlen) 5);
   forttime_ (&t1);
   i__1 = (*ntimes << 2) / *n;
+	i__3 = i__2 = m;
   for (nl = 1; nl <= i__1; ++nl) {
+#if defined __INTEL_COMPILER
       // set up class in reverse order; count time spent
-      vector<float> Cr(i__3 = m);
+      vector<float> Cr(m);
       reverse_copy(&c__[1],&c__[i__3]+1,Cr.begin());
 #pragma omp parallel for if(i__3 > 103)
     for (i__ = 1; i__ <= i__3; ++i__) 
 	a[i__] += inner_product(Cr.begin(),Cr.end(),&b[i__],0.f);
+#else
+	for (i__ = 1; i__ <= i__3; ++i__) 
+	    for (int j = 1; j <= i__2; ++j) 
+		a[j] += b[j+i__2-i__] * c__[i__];
+#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -1318,8 +1328,9 @@ s273_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
-	  c__[i__] += (a[i__] += d__[i__] * e[i__]) * d__[i__];
-	  b[i__] += (a[i__] < 0.f)? d__[i__] * e[i__]: 0.f;
+	  float tmp= d__[i__] * e[i__];
+	  c__[i__] += (a[i__] += tmp) * d__[i__];
+	  b[i__] += (a[i__] < 0.f)? tmp: 0.f;
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -1650,6 +1661,119 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
   return 0;
 }				/* s318_ */
 
+/* %3.2 */
+/* Subroutine */ extern "C" int
+s322_ (integer * ntimes, integer * ld, integer * n, real *
+       ctime, real * dtime, real * __restrict a, real * __restrict b,
+       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       real * cc) {
+  /* System generated locals */
+  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
+    i__2;
+
+  /* Local variables */
+  integer i__;
+  real t1, t2;
+  integer nl;
+  real chksum;
+
+
+/*     recurrences */
+/*     second order linear recurrence */
+
+  /* Parameter adjustments */
+  cc_dim1 = *ld;
+  cc_offset = 1 + cc_dim1 * 1;
+  cc -= cc_offset;
+  bb_dim1 = *ld;
+  bb_offset = 1 + bb_dim1 * 1;
+  bb -= bb_offset;
+  aa_dim1 = *ld;
+  aa_offset = 1 + aa_dim1 * 1;
+  aa -= aa_offset;
+  --e;
+  --d__;
+  --c__;
+  --b;
+  --a;
+
+  /* Function Body */
+  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	 &bb[bb_offset], &cc[cc_offset], "s322 ", (ftnlen) 5);
+  forttime_ (&t1);
+  i__1 = *ntimes;
+  for (nl = 1; nl <= i__1; ++nl) {
+      float tmp = a[2];
+      i__2 = *n;
+      for (i__ = 3; i__ <= i__2; ++i__)
+	  a[i__] = tmp = (a[i__] + a[i__ - 2] * c__[i__]) + tmp * b[i__];
+      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	      &bb[bb_offset], &cc[cc_offset], &c_b3);
+    }
+  forttime_ (&t2);
+  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes);
+  chksum = cs1d_ (n, &a[1]);
+  i__1 = *ntimes * (*n - 2);
+  check_ (&chksum, &i__1, n, &t2, "s322 ", (ftnlen) 5);
+  return 0;
+}				/* s322_ */
+
+/* %3.5 */
+/* Subroutine */ extern "C" int
+s352_ (integer * ntimes, integer * ld, integer * n, real *
+       ctime, real * dtime, real * a, real * b, real * c__, real * d__,
+       real * e, real * aa, real * bb, real * cc) {
+  /* System generated locals */
+  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
+    i__2;
+
+  /* Local variables */
+  integer i__;
+  real t1, t2;
+  integer nl;
+  real chksum, dot;
+
+
+/*     loop rerolling */
+/*     unrolled dot product */
+
+  /* Parameter adjustments */
+  cc_dim1 = *ld;
+  cc_offset = 1 + cc_dim1 * 1;
+  cc -= cc_offset;
+  bb_dim1 = *ld;
+  bb_offset = 1 + bb_dim1 * 1;
+  bb -= bb_offset;
+  aa_dim1 = *ld;
+  aa_offset = 1 + aa_dim1 * 1;
+  aa -= aa_offset;
+  --e;
+  --d__;
+  --c__;
+  --b;
+  --a;
+
+  /* Function Body */
+  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	 &bb[bb_offset], &cc[cc_offset], "s352 ", (ftnlen) 5);
+  forttime_ (&t1);
+  i__1 = *ntimes * 5;
+  for (nl = 1; nl <= i__1; ++nl) {
+      dot = 0.f;
+      i__2 = *n;
+      for (i__ = 1; i__ <= i__2; i__ += 5)
+	  dot += a[i__] * b[i__] + a[i__ + 1] * b[i__ + 1] + a[i__ + 2]
+	    * b[i__ + 2] + a[i__ + 3] * b[i__ + 3] + a[i__ + 4] * b[i__ + 4];
+      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	      &bb[bb_offset], &cc[cc_offset], &c_b3);
+    }
+  forttime_ (&t2);
+  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes * 5);
+  chksum = dot;
+  i__1 = *ntimes * 5 * (*n / 5);
+  check_ (&chksum, &i__1, n, &t2, "s352 ", (ftnlen) 5);
+  return 0;
+}				/* s352_ */
 
 /* %3.1 */
 /* Subroutine */ extern "C" int
@@ -1912,4 +2036,60 @@ s491_ (integer * ntimes, integer * ld, integer * n, real *
   check_ (&chksum, &i__1, n, &t2, "s491 ", (ftnlen) 5);
   return 0;
 }				/* s491_ */
+
+/* %5.1 */
+/* Subroutine */ extern "C" int
+vpvpv_ (integer * ntimes, integer * ld, integer * n, real *
+	ctime, real * dtime, real * __restrict a, real * __restrict b,
+	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+	real * cc) {
+  /* System generated locals */
+  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
+    i__2;
+
+  /* Local variables */
+  integer i__;
+  real t1, t2;
+  integer nl;
+  real chksum;
+
+
+/*     control loops */
+/*     vector plus vector plus vector */
+
+  /* Parameter adjustments */
+  cc_dim1 = *ld;
+  cc_offset = 1 + cc_dim1 * 1;
+  cc -= cc_offset;
+  bb_dim1 = *ld;
+  bb_offset = 1 + bb_dim1 * 1;
+  bb -= bb_offset;
+  aa_dim1 = *ld;
+  aa_offset = 1 + aa_dim1 * 1;
+  aa -= aa_offset;
+  --e;
+  --d__;
+  --c__;
+  --b;
+  --a;
+
+  /* Function Body */
+  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	 &bb[bb_offset], &cc[cc_offset], "vpvpv", (ftnlen) 5);
+  forttime_ (&t1);
+  i__1 = *ntimes;
+  for (nl = 1; nl <= i__1; ++nl) {
+      i__2 = *n;
+      for (i__ = 1; i__ <= i__2; ++i__)
+	  a[i__] += b[i__] + c__[i__];
+      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	      &bb[bb_offset], &cc[cc_offset], &c_b3);
+    }
+  forttime_ (&t2);
+  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes);
+  chksum = cs1d_ (n, &a[1]);
+  i__1 = *ntimes * *n;
+  check_ (&chksum, &i__1, n, &t2, "vpvpv", (ftnlen) 5);
+  return 0;
+}				/* vpvpv_ */
 

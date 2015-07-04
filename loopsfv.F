@@ -2512,23 +2512,34 @@ C%3.1
 C
 C     reductions
 C     sum reduction saving running sums
+c   called prefix sum in literature, partial_sum in C++
 C
       integer ntimes,ld,n,i,nl
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
-      real t1,t2,chksum,ctime,dtime,cs1d,sum
+      real t1,t2,chksum,ctime,dtime,cs1d,sumr
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s3112')
       call forttime(t1)
       do nl= 1,ntimes
-	  sum= 0.
-	  do i= 1,n
-	      sum= sum+a(i)
-	      b(i)= sum
+	  sumr= 0.
+          i= 1
+#ifndef __MIC__
+	  do i= 1,n-3,4
+	      b(i)= sumr+a(i)
+	      b(i+1)= sumr+sum(a(i:i+1))
+	      b(i+2)= sumr+sum(a(i:i+2))
+	      sumr= sumr+sum(a(i:i+3))
+	      b(i+3)= sumr
 	    enddo
-	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,sum)
+#endif
+	  do i= i,n
+	      sumr= sumr+a(i)
+	      b(i)= sumr
+	    enddo
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,sumr)
 	enddo
       call forttime(t2)
       t2= t2-t1-ctime-(dtime*float(ntimes))
-      chksum= cs1d(n,b)+sum
+      chksum= cs1d(n,b)+sumr
       call check(chksum,ntimes*n,n,t2,'s3112')
       return
       end
