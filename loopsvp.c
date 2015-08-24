@@ -235,6 +235,68 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
   return 0;
 }				/* s114_ */
 
+/* %1.1 */
+/* Subroutine */ int
+s119_ (integer * ntimes, integer * ld, integer * n, real *
+       ctime, real * dtime, real * a, real * b, real * c__, real * d__,
+       real * e, real * restrict aa, real * restrict bb, real * cc) {
+  /* System generated locals */
+  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
+    i__2, i__3;
+
+  /* Local variables */
+  integer i__, j;
+  real t1, t2;
+  integer nl;
+  real chksum;
+
+
+/*     linear dependence testing */
+/*     no dependence - vectorizable */
+
+  /* Parameter adjustments */
+  cc_dim1 = *ld;
+  cc_offset = 1 + cc_dim1 * 1;
+  cc -= cc_offset;
+  bb_dim1 = *ld;
+  bb_offset = 1 + bb_dim1 * 1;
+  bb -= bb_offset;
+  aa_dim1 = *ld;
+  aa_offset = 1 + aa_dim1 * 1;
+  aa -= aa_offset;
+  --e;
+  --d__;
+  --c__;
+  --b;
+  --a;
+
+  /* Function Body */
+  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	 &bb[bb_offset], &cc[cc_offset], "s119 ", (ftnlen) 5);
+  forttime_ (&t1);
+  i__1 = *ntimes / *n;
+  for (nl = 1; nl <= i__1; ++nl) {
+      i__2 = i__3 = *n;
+      for (j = 2; j <= i__2; ++j) {
+//OK if i__3 <= aa_dim1 or aa_dim1 >= 64
+#ifndef __MIC__
+#pragma omp simd safelen(32)
+#endif
+	    for (i__ = 2; i__ <= i__3; ++i__) 
+		aa[i__ + j * aa_dim1] = aa[i__ - 1 + (j - 1) * aa_dim1] + bb[
+			i__ + j * bb_dim1];
+	}
+      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	      &bb[bb_offset], &cc[cc_offset], &c_b3);
+    }
+  forttime_ (&t2);
+  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes / *n);
+  chksum = cs2d_ (n, &aa[aa_offset]);
+  i__1 = *ntimes / *n * (*n - 1) * (*n - 1);
+  check_ (&chksum, &i__1, n, &t2, "s119 ", (ftnlen) 5);
+  return 0;
+}				/* s119_ */
+
 /* %1.2 */
 /* Subroutine */ int
 s122_ (integer * ntimes, integer * ld, integer * n, real *
@@ -1786,6 +1848,9 @@ s352_ (integer * ntimes, integer * ld, integer * n, real *
       dot = 0.f;
       i__2 = *n;
       // 50% gain for observing ordering on Core i7
+#if !defined __MIC__
+#pragma novector
+#endif
       for (i__ = 1; i__ <= i__2; i__ += 5)
 	    dot += a[i__] * b[i__] + a[i__ + 1] * b[i__ + 1] + a[i__ + 2]
 	    * b[i__ + 2] + a[i__ + 3] * b[i__ + 3] + a[i__ + 4] * b[i__ + 4];
@@ -2156,7 +2221,10 @@ s442_ (integer * ntimes, integer * ld, integer * n, real *
     int nt= 2;
 #endif
       i__2 = *n;
+#if defined __INTEL_COMPILER
 #pragma omp parallel for num_threads(nt) if(i__2 > 103)
+#pragma novector
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  switch (indx[i__]) {
 	    case 1: a[i__] += b[i__] * b[i__];

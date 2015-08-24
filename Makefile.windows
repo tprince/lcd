@@ -4,7 +4,7 @@
 CXXIFLAGS = -O3 -Qopenmp -QxHost -Qunroll4 -debug:inline-debug-info -Qopt-report-file=$*_opt.txt -Qopt-report4 /Qparallel-source-info:2
 CIFLAGS = -O3 -Qstd=c99 -Qopenmp -QxHost -Qunroll4 -debug:inline-debug-info -Qopt-report-file=$*_opt.txt -Qopt-report4 /Qparallel-source-info:2 /Qprotect-parens
 # cl /openmp fails in VC Express; add for full VC
-CXXMFLAGS = /Ox /EHsc /GL- /openmp /fp:fast /arch:AVX -Zi
+CXXMFLAGS = /Ox /EHsc /GL- /openmp /fp:fast /arch:AVX2 -Zi
 #VS2008 requires MT option, such as openmp
 # add /favor:EM64T for 64-bit
 FFLAGS   = -O3 -Qopenmp -assume:protect_parens,underscore -QxHost -Qunroll4 -fpp -names:lowercase -align:array32byte -Qopt-report-file=$*_opt.txt -Qopt-report4 -debug:inline-debug-info /Qparallel-source-info:2

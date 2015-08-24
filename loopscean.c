@@ -2999,7 +2999,7 @@ s255_ (integer * ntimes, integer * ld, integer * n, real *
       y = b[*n - 1];
       i__2 = *n;
 #if 1
-#pragma simd firstprivate(x,y)
+#pragma omp simd
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  a[i__] = (b[i__] + x + y) * .333f;
 	  y = x;
@@ -5634,7 +5634,8 @@ s343_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.5 */
 /* Subroutine */ int
 s351_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * restrict a, real * restrict b, real * c__,
+       ctime, real * dtime, real *  a, real *  b, real * c__,
+//       ctime, real * dtime, real * restrict a, real * restrict b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5738,6 +5739,9 @@ s352_ (integer * ntimes, integer * ld, integer * n, real *
       dot = 0.f;
       i__2 = *n;
       // 50% gain for observing ordering on Core i7
+#if !defined __MIC__
+#pragma novector
+#endif
       for (i__ = 1; i__ <= i__2; i__ += 5)
 	    dot += a[i__] * b[i__] + a[i__ + 1] * b[i__ + 1] + a[i__ + 2]
 	    * b[i__ + 2] + a[i__ + 3] * b[i__ + 3] + a[i__ + 4] * b[i__ + 4];
@@ -6584,6 +6588,7 @@ s442_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#pragma novector
       for (int i__ = 1; i__ <= i__2; ++i__)
 	  switch (indx[i__]) {
 	    case 1: a[i__] += b[i__] * b[i__];
@@ -6710,6 +6715,7 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 //      cilk_for (int i__ = 1; i__ <= i__2; ++i__)
+//	  a[i__] = sinf (b[i__]) + cosf (c__[i__]);
 	  a[1:i__2] = sinf (b[1:i__2]) + cosf (c__[1:i__2]);
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

@@ -551,7 +551,7 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-#if defined __AVX2__ || defined __MIC__
+#if defined __AVX2__ && OPENMP >= 201307 || defined __MIC__
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -791,7 +791,7 @@ s175_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = *n - 1;	//should be *n - *inc
+      i__2 = *n - *inc;	//should be *n - *inc
       i__3 = *inc;
 //      if(i__3 == 1)
 //	transform(&a[1],&a[i__2]+1,&b[1],&a[2],plus<float>());
@@ -1213,6 +1213,72 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
 
 /* %2.5 */
 /* Subroutine */ extern "C" int
+s255_ (integer * ntimes, integer * ld, integer * n, real *
+       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       real * d__, real * e, real * aa, real * bb, real * cc) {
+  /* System generated locals */
+  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
+    i__2;
+
+  /* Local variables */
+  integer i__;
+  integer im1, im2;
+  real x,y;
+  real t1, t2;
+  integer nl;
+  real chksum;
+  extern real cs1d_ (integer *, real *);
+
+
+/*     scalar and array expansion */
+/*     carry around variables, 2 levels */
+
+  /* Parameter adjustments */
+  cc_dim1 = *ld;
+  cc_offset = 1 + cc_dim1 * 1;
+  cc -= cc_offset;
+  bb_dim1 = *ld;
+  bb_offset = 1 + bb_dim1 * 1;
+  bb -= bb_offset;
+  aa_dim1 = *ld;
+  aa_offset = 1 + aa_dim1 * 1;
+  aa -= aa_offset;
+  --e;
+  --d__;
+  --c__;
+  --b;
+  --a;
+
+  /* Function Body */
+  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	 &bb[bb_offset], &cc[cc_offset], "s255 ", (ftnlen) 5);
+  forttime_ (&t1);
+  i__1 = *ntimes;
+  for (nl = 1; nl <= i__1; ++nl) {
+      x = b[*n];
+      y = b[*n - 1];
+      i__2 = *n;
+#if defined _OPENMP && _OPENMP >= 201307
+#pragma omp simd
+#endif
+      for (i__ = 1; i__ <= i__2; ++i__) {
+	  a[i__] = (b[i__] + x + y) * .333f;
+	  y = x;
+	  x = b[i__];
+	}
+      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
+	      &bb[bb_offset], &cc[cc_offset], &c_b3);
+    }
+  forttime_ (&t2);
+  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes);
+  chksum = cs1d_ (n, &a[1]);
+  i__1 = *ntimes * *n;
+  check_ (&chksum, &i__1, n, &t2, "s255 ", (ftnlen) 5);
+  return 0;
+}				/* s255_ */
+
+/* %2.5 */
+/* Subroutine */ extern "C" int
 s257_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * __restrict aa, real * __restrict bb,
@@ -1385,10 +1451,10 @@ s275_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = *n;
-	i__3 = *n;
+      i__2 = i__3 = *n;
 	for (j = 2; j <= i__3; ++j)
-#if defined __MIC__ || defined __AVX2__
+//OK if i__2 <= aa_dim1 or aa_dim1 > 64
+#if defined __AVX2__ && OPENMP >= 201307 || defined __MIC__
 #pragma omp simd safelen(32)
 #endif
 	    for (i__ = 2; i__ <= i__2; ++i__)
@@ -1514,8 +1580,12 @@ s2101_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if _OPENMP >= 201307
+#if defined __INTEL_COMPILER || !defined __AVX__
 #pragma omp parallel for simd if(i__2 > 103)
+#endif
+#else
+#pragma omp parallel for if(i__2 > 103)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  aa[i__ + i__ * aa_dim1] += bb[i__ + i__ * bb_dim1] * cc[i__ + i__
@@ -1893,7 +1963,9 @@ s442_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if defined __INTEL_COMPILER
 #pragma omp parallel for num_threads(2) if(i__2 > 103)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  switch (indx[i__]) {
 	    case 1: a[i__] += b[i__] * b[i__];

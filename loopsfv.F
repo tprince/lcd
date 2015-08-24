@@ -545,16 +545,16 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s128 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-	  j= 0
-#if 0
+#ifndef __MIC__
 !dir$ no vector
 !dir$ unroll(4)
 #endif
-	  do i= 1,n/2
-	      k= i*2-1
-	      a(i)= b(k)-d(i)
-	      b(k)= a(i)+c(k)
-	    enddo
+	  a(:n/2)= b(:n-1:2)-d(:n/2)
+#ifndef __MIC__
+!dir$ no vector
+!dir$ unroll(4)
+#endif
+	  b(:n-1:2)= a(:n/2)+c(:n-1:2)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -1352,8 +1352,8 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 	  do i= 1,n-1
+	      a(i)= b(i)+((e(i)+c(i))+a(i+1))*d(i)
 	      b(i)= b(i)+d(i)*(e(i)+c(i))
-	      a(i)= b(i)+a(i+1)*d(i)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -1523,7 +1523,7 @@ C
 	  x= b(n)
 	  y= b(n-1)
 #ifdef __INTEL_COMPILER	  
-!dir$ simd firstprivate(x,y)
+!$omp simd
 	  do i= 1,n
 	      a(i)= (b(i)+x+y)*.333
 	      y= x
@@ -2827,6 +2827,9 @@ C
       call forttime(t1)
       do nl= 1,5*ntimes
 	  dot= 0.
+#ifndef __MIC__
+!dir$ no vector
+#endif
 	  do i= 1,n,5
 	    dot= dot+(a(i)*b(i)+a(i+1)*b(i+1)+a(i+2)*b(i+2)+
      &a(i+3)*b(i+3)+a(i+4)*b(i+4))
@@ -3229,6 +3232,7 @@ C
       do nl= 1,ntimes
 #if defined __INTEL_COMPILER
 !$omp parallel do num_threads(2) if(n>103)
+!dir$ no vector
 #endif
 	  do i= 1,n
 	      select case(indx(i))

@@ -457,68 +457,6 @@ s115_ (integer * ntimes, integer * ld, integer * n, real *
   return 0;
 }				/* s115_ */
 
-/* %1.1 */
-/* Subroutine */ int
-s119_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * restrict aa, real * restrict bb, real * cc) {
-  /* System generated locals */
-  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
-    i__2, i__3;
-
-  /* Local variables */
-  integer i__, j;
-  real t1, t2;
-  integer nl;
-  real chksum;
-
-
-/*     linear dependence testing */
-/*     no dependence - vectorizable */
-
-  /* Parameter adjustments */
-  cc_dim1 = *ld;
-  cc_offset = 1 + cc_dim1 * 1;
-  cc -= cc_offset;
-  bb_dim1 = *ld;
-  bb_offset = 1 + bb_dim1 * 1;
-  bb -= bb_offset;
-  aa_dim1 = *ld;
-  aa_offset = 1 + aa_dim1 * 1;
-  aa -= aa_offset;
-  --e;
-  --d__;
-  --c__;
-  --b;
-  --a;
-
-  /* Function Body */
-  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	 &bb[bb_offset], &cc[cc_offset], "s119 ", (ftnlen) 5);
-  forttime_ (&t1);
-  i__1 = *ntimes / *n;
-  for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = i__3 = *n;
-      for (j = 2; j <= i__2; ++j) {
-//OK if i__3 <= aa_dim1 or aa_dim1 >= 64
-#ifndef __MIC__
-#pragma omp simd safelen(32)
-#endif
-	    for (i__ = 2; i__ <= i__3; ++i__) 
-		aa[i__ + j * aa_dim1] = aa[i__ - 1 + (j - 1) * aa_dim1] + bb[
-			i__ + j * bb_dim1];
-	}
-      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	      &bb[bb_offset], &cc[cc_offset], &c_b3);
-    }
-  forttime_ (&t2);
-  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes / *n);
-  chksum = cs2d_ (n, &aa[aa_offset]);
-  i__1 = *ntimes / *n * (*n - 1) * (*n - 1);
-  check_ (&chksum, &i__1, n, &t2, "s119 ", (ftnlen) 5);
-  return 0;
-}				/* s119_ */
-
 
 /* %1.1 */
 /* Subroutine */ int
@@ -1073,7 +1011,7 @@ s151s_ (real * restrict a, real * restrict b, integer * n, integer  m) {
   --a;
 
   /* Function Body */
-  i__1 = *n - 1;	// should be *n - m
+  i__1 = *n - m;	// should be *n - m
 #pragma GCC ivdep
   for (i__ = 1; i__ <= i__1; ++i__)
       a[i__] = a[i__ + m] + b[i__];
@@ -2282,17 +2220,9 @@ s254_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       x = b[*n];
       i__2 = *n;
-#ifdef __INTEL_COMPILER
-#pragma omp simd
-      for (i__ = 1; i__ <= i__2; ++i__) {
-	  a[i__] = (b[i__] + x) * .5f;
-	  x = b[i__];
-	}
-#else
 	  i__=1; a[i__] = (b[i__] + x) * .5f;
       for (i__ = 2; i__ <= i__2; ++i__)
 	  a[i__] = (b[i__] + b[i__ -1]) * .5f;
-#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
