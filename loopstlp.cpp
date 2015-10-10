@@ -4,9 +4,6 @@
 //#define restrict
 #ifdef _OPENMP
 #include <omp.h>
-#if defined __INTEL_COMPILER && __INTEL_COMPILER_BUILD_DATE >= 20130607 && _OPENMP < 201107
-#define _OPENMP 201107
-#endif
 #endif
 extern "C"{
 #include "g2c.h"
@@ -192,7 +189,7 @@ static real c_b393 = 0.f;
 /* Subroutine */ extern "C" int
 s114_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer i__,j;
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -233,7 +230,7 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp parallel for if(i__2 > 101)
       for (j = 2; j <= i__2; ++j) {
 	  int i__3 = j - 1;
-#if defined _OPENMP && _OPENMP >= 201107 && ! __MIC__
+#if defined _OPENMP && _OPENMP >= 201307 && ! __MIC__
 #pragma omp simd
 #endif
 	  for (int i__ = 1; i__ <= i__3; ++i__)
@@ -255,7 +252,7 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s125_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -318,7 +315,7 @@ s125_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s126_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * aa, real * __restrict bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -357,7 +354,7 @@ s126_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if defined _OPENMP && _OPENMP < 201107 || !defined __INTEL_COMPILER && __AVX__
+#if defined _OPENMP && _OPENMP < 201307 || !defined __INTEL_COMPILER && __AVX__
       for (int j = 2; j <= i__3; ++j){
 	  int k = j - 2 - i__3;
 	  for (int i__ = 1; i__ <= i__2; ++i__)
@@ -386,7 +383,7 @@ s126_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.3 */
 /* Subroutine */ extern "C" int
 s132_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * a, real * __restrict b, real * __restrict c__,
+       ctime, real * dtime, real * a, real * b, real * c__,
        real * d__, real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -428,7 +425,7 @@ s132_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd safelen(32)
 #endif
       for (i__ = 2; i__ <= i__2; ++i__)
@@ -510,8 +507,8 @@ s141_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.6 */
 /* Subroutine */ extern "C" int
 s161_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -573,9 +570,9 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.6 */
 /* Subroutine */ extern "C" int
 s162_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc, integer * __restrict k) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb,
+       real * cc, integer * k) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -614,7 +611,7 @@ s162_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       if (*k > 0) {
 	  i__2 = *n - 1;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
 	  for (i__ = 1; i__ <= i__2; ++i__)
@@ -634,9 +631,8 @@ s162_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s171_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
-       real * d__, real * e, real * aa, real * bb, real * cc,
-       integer * __restrict inc) {
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
+       real * d__, real * e, real * aa, real * bb, real * cc, integer * inc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -674,7 +670,7 @@ s171_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -693,7 +689,7 @@ s171_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s172_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc, integer * n1,
        integer * n3) {
   /* System generated locals */
@@ -734,7 +730,7 @@ s172_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
       i__3 = *n3;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
@@ -753,7 +749,7 @@ s172_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s175_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc, integer * inc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -796,7 +792,7 @@ s175_ (integer * ntimes, integer * ld, integer * n, real *
 //      if(i__3 == 1)
 //	transform(&a[1],&a[i__2]+1,&b[1],&a[2],plus<float>());
 //      else
-#if defined _OPENMP && _OPENMP >= 201107 && (defined __MIC__ || defined __AVX2__)
+#if defined _OPENMP && _OPENMP >= 201307 && (defined __MIC__ || defined __AVX2__)
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; i__ += i__3)
@@ -815,9 +811,8 @@ s175_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s176_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -889,8 +884,7 @@ s176_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s211_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
-       real * bb, real * cc) {
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -929,12 +923,12 @@ s211_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
 // pragma used as portable way to imply nofusion
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 2; i__ <= i__2; ++i__)
 	  b[i__] = b[i__ + 1] - e[i__] * d__[i__];
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 2; i__ <= i__2; ++i__)
@@ -954,7 +948,7 @@ s211_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s232_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1014,7 +1008,7 @@ s232_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s233_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1060,7 +1054,7 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
 	      bb[i__ + j * bb_dim1] = bb[i__ - 1 + j*bb_dim1] +
 		    cc[i__ + j * cc_dim1];
 
-#if defined _OPENMP && _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if defined _OPENMP && _OPENMP >= 201307 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp for simd
 	  for (int i__ = 2; i__ <= i__2; ++i__)
       for (int j = 2; j <= i__3; ++j)
@@ -1087,7 +1081,7 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s234_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1;
 
@@ -1124,7 +1118,7 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
 	int i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if defined _OPENMP && _OPENMP >= 201307 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(*n > 53)
 	for(int i__ = 1; i__<= i__2; ++i__)
 	    for(int j = 2; j <= i__2; ++j)
@@ -1149,8 +1143,7 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s235_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * b, real * c__,
-       real * d__, real * e, real * __restrict aa, real * __restrict bb,
-       real * cc) {
+       real * d__, real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1190,7 +1183,7 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += b[i__] * c__[i__];
-#if defined _OPENMP && _OPENMP >= 201107 && (defined __INTEL_COMPILER || !defined __AVX__)
+#if defined _OPENMP && _OPENMP >= 201307 && (defined __INTEL_COMPILER || !defined __AVX__)
 #pragma omp parallel for simd if(i__2 > 53)
       for (i__ = 1; i__ <= i__2; ++i__)
 	  for (int j = 2; j <= i__3; ++j)
@@ -1214,7 +1207,7 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s255_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1280,9 +1273,8 @@ s255_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s257_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
-       real * d__, real * e, real * __restrict aa, real * __restrict bb,
-       real * cc) {
+       ctime, real * dtime, real * a, real * b, real * c__,
+       real * d__, real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1350,8 +1342,8 @@ s257_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.7 */
 /* Subroutine */ extern "C" int
 s273_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * a, real * __restrict b,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1390,7 +1382,7 @@ s273_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
@@ -1414,7 +1406,7 @@ s273_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s275_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1476,8 +1468,7 @@ s275_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s281_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -1517,12 +1508,12 @@ s281_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
       i__ = 1;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
     for (i__= i__; i__ <= (i__2+1)/2; ++i__)
 	a[i__] = (b[i__] = a[i__2 - i__ + 1] + b[i__] * c__[i__])- 1.f;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
     for (i__= (i__2+3)/2; i__ <= i__2; ++i__)
@@ -1542,7 +1533,7 @@ s281_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s2101_ (integer * ntimes, integer * ld, integer * n, real *
 	ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-	real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+	real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -1707,7 +1698,7 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = ABS (a[1]);
       i__2 = *n;
 #if defined _OPENMP 
-#if _OPENMP >= 201107 && !defined __INTEL_COMPILER
+#if _OPENMP >= 201307 && !defined __INTEL_COMPILER
 #pragma omp simd lastprivate(index)
 #endif
 #endif
@@ -1734,8 +1725,8 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.2 */
 /* Subroutine */ extern "C" int
 s322_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1849,7 +1840,7 @@ s352_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s3110_ (integer * ntimes, integer * ld, integer * n, real *
 	ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-	real * e, real * aa, real * bb, real * cc) {
+	real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1891,14 +1882,14 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = aa[aa_dim1 + 1];
       xindex = yindex = 1;
       i__2 = i__3 = *n;
-#if defined _OPENMP && _OPENMP < 201107
+#if defined _OPENMP && _OPENMP < 201307
 #pragma omp parallel for if(i__2 > 103)
 #else
 #pragma omp parallel for if(i__2 > 103) reduction(max: max__) lastprivate(xindex,yindex)
 #endif
       for (j = 1; j <= i__2; ++j) {
 	  float *maxj=max_element(&aa[1+j*aa_dim1],&aa[i__3+1+j*aa_dim1]);
-#if defined _OPENMP && _OPENMP < 201107
+#if defined _OPENMP && _OPENMP < 201307
 #pragma omp critical
 #endif
 	    if(*maxj > max__ || *maxj == max__ && j < yindex){
@@ -1922,8 +1913,8 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.4 */
 /* Subroutine */ extern "C" int
 s442_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc, integer * indx) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1991,9 +1982,8 @@ s442_ (integer * ntimes, integer * ld, integer * n, real *
 #include <math.h>
 /* Subroutine */ extern "C" int
 s451_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -2031,7 +2021,7 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if _OPENMP < 201107 || !defined __INTEL_COMPILER && defined __AVX__
+#if _OPENMP < 201307 || !defined __INTEL_COMPILER && defined __AVX__
 #pragma omp parallel for num_threads(4) if(i__2 > 103)
 #else
 #pragma omp parallel for simd num_threads(4) if(i__2 > 103)
@@ -2052,8 +2042,8 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.9 */
 /* Subroutine */ extern "C" int
 s491_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc, integer * ip) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2093,7 +2083,7 @@ s491_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -2112,9 +2102,8 @@ s491_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vpvpv_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-	real * cc) {
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;

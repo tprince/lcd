@@ -4,9 +4,6 @@
 //#define restrict
 #ifdef _OPENMP
 #include <omp.h>
-#if defined __INTEL_COMPILER && __INTEL_COMPILER_BUILD_DATE >= 20130607 && _OPENMP < 201107
-#define _OPENMP 201107
-#endif
 #endif
 extern "C"{
 #include "g2c.h"
@@ -191,7 +188,7 @@ static real c_b393 = 0.f;
 /* %1.1 */
 /* Subroutine */ extern "C" int
 s111_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer i__;
@@ -246,7 +243,7 @@ s111_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.1 */
 /* Subroutine */ extern "C" int
 s112_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1;
@@ -299,7 +296,7 @@ s112_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.1 */
 /* Subroutine */ extern "C" int
 s113_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -356,7 +353,7 @@ s113_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s115_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real *__restrict a, real * b, real * c__, real * d__,
-       real * e, real *__restrict aa, real * bb, real * cc) {
+       real * e, real *aa, real * bb, real * cc) {
   /* System generated locals */
   integer i__,j;
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -469,7 +466,7 @@ s116_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s118_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * b, real * c__,
-       real * d__, real * e, real * aa, real * __restrict bb, real * cc) {
+       real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -508,10 +505,14 @@ s118_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
       for (i__ = 2; i__ <= i__2; ++i__) {
-	  i__3 = i__ - 1;
+//	  i__3 = i__ - 1;
 	  /* inaccurate order specified */
-	  for (j = i__3; j >= 1; --j)
-	      a[i__] += bb[i__ + j * bb_dim1] * a[i__ - j];
+//	  for (j = i__3; j >= 1; --j)
+//	      a[i__] += bb[i__ + j * bb_dim1] * a[i__ - j];
+	  float sum = 0;
+	  for (j = 1; j < i__; ++j)
+	      sum += bb[i__ + (i__ - j) * bb_dim1] * a[j];
+	    a[i__] += sum;
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -528,7 +529,7 @@ s118_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s119_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -588,7 +589,7 @@ s119_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s121_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -643,7 +644,7 @@ s121_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s122_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc, integer * n1,
        integer * n3) {
   /* System generated locals */
@@ -686,7 +687,7 @@ s122_ (integer * ntimes, integer * ld, integer * n, real *
       k = 0;
       i__2 = *n;
       i__3 = *n3;
-#if defined _OPENMP && _OPENMP >= 201107 && defined __MIC__
+#if defined _OPENMP && _OPENMP >= 201307 && defined __MIC__
 #pragma omp simd
 #endif
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
@@ -705,8 +706,8 @@ s122_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s123_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -765,8 +766,8 @@ s123_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s124_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -825,8 +826,8 @@ s124_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s127_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -884,8 +885,13 @@ s127_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s128_ (integer * ntimes, integer * ld, integer * n, real *
+#if __MIC__
+       // hack to make vectorization target-dependent
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+#else
+       ctime, real * dtime, real * a, real * b,
+#endif
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -944,7 +950,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.3 */
 /* Subroutine */ extern "C" int
 s131_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1053,7 +1059,7 @@ s151_ (integer * ntimes, integer * ld, integer * n, real *
 }				/* s151_ */
 
 /* Subroutine */ extern "C" int
-s151s_ (real * __restrict a, real * __restrict b, integer * n, integer * m) {
+s151s_ (real * __restrict a, real * b, integer * n, integer * m) {
   /* System generated locals */
   integer i__1;
 
@@ -1074,7 +1080,7 @@ s151s_ (real * __restrict a, real * __restrict b, integer * n, integer * m) {
 /* Subroutine */ extern "C" int
 s152_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1133,7 +1139,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
 }				/* s152_ */
 
 /* Subroutine */ extern "C" int
-s152s_ (real * __restrict a, real * __restrict b, real * __restrict c__,
+s152s_ (real * __restrict a, real * __restrict b, real * c__,
 	integer * i__) {
   /* Parameter adjustments */
   --c__;
@@ -1148,7 +1154,7 @@ s152s_ (real * __restrict a, real * __restrict b, real * __restrict c__,
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s173_ (integer * ntimes, integer * ld, integer * n, real * ctime,
-    real * dtime, real * __restrict a, real * __restrict b, real * c__, real * d__,
+    real * dtime, real * __restrict a, real * b, real * c__, real * d__,
        real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1203,7 +1209,7 @@ s173_ (integer * ntimes, integer * ld, integer * n, real * ctime,
 /* %1.7 */
 /* Subroutine */ extern "C" int
 s174_ (integer * ntimes, integer * ld, integer * n, real * ctime,
-    real * dtime, real *__restrict a, real *__restrict b, real * c__, real * d__,
+    real * dtime, real *__restrict a, real *b, real * c__, real * d__,
        real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1264,7 +1270,7 @@ s174_ (integer * ntimes, integer * ld, integer * n, real * ctime,
 /* Subroutine */ extern "C" int
 s212_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1322,7 +1328,7 @@ s212_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s221_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1379,7 +1385,7 @@ s221_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s222_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       real * c__, real * d__, real * e, real * aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1438,7 +1444,7 @@ s222_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s231_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -1494,7 +1500,7 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s241_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1551,9 +1557,9 @@ s241_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.4 */
 /* Subroutine */ extern "C" int
 s242_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
-       real * bb, real * cc, real * __restrict s1, real * __restrict s2) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
+       real * bb, real * cc, real * s1, real * s2) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -1608,7 +1614,7 @@ s242_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s243_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1666,7 +1672,7 @@ s243_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s244_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1724,8 +1730,8 @@ s244_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s251_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1783,8 +1789,8 @@ s251_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s252_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1842,8 +1848,8 @@ s252_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s253_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1903,7 +1909,7 @@ s253_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s254_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -1964,8 +1970,8 @@ s254_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s256_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
-       real * d__, real * e, real * __restrict aa, real * __restrict bb,
+       ctime, real * dtime, real * a, real * b, real * c__,
+       real * d__, real * e, real * __restrict aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2023,9 +2029,9 @@ s256_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.5 */
 /* Subroutine */ extern "C" int
 s258_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e,
-       real * __restrict aa, real * bb, real * cc) {
+       ctime, real * dtime, real * a, real * __restrict b,
+       real * c__, real * d__, real * __restrict e,
+       real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -2085,8 +2091,8 @@ s258_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.6 */
 /* Subroutine */ extern "C" int
 s261_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2143,8 +2149,8 @@ s261_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.7 */
 /* Subroutine */ extern "C" int
 s271_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2200,8 +2206,8 @@ s271_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s272_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
-       real * bb, real * cc, real * __restrict t) {
+       real * c__, real * d__, real * e, real * aa,
+       real * bb, real * cc, real * t) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -2259,7 +2265,7 @@ s272_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s274_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2317,8 +2323,8 @@ s274_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.7 */
 /* Subroutine */ extern "C" int
 s276_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2378,7 +2384,7 @@ s276_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s277_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2438,7 +2444,7 @@ s277_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s278_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2499,7 +2505,7 @@ s278_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s279_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * __restrict c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2561,8 +2567,8 @@ s279_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s2710_ (integer * ntimes, integer * ld, integer * n, real *
 	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * __restrict d__, real * __restrict e,
-	real * aa, real * bb, real * cc, real * const __restrict x) {
+	real * __restrict c__, real * d__, real * e,
+	real * aa, real * bb, real * cc, real * const x) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -2631,8 +2637,8 @@ s2710_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.7 */
 /* Subroutine */ extern "C" int
 s2711_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb,
 	real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2692,8 +2698,8 @@ s2711_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.7 */
 /* Subroutine */ extern "C" int
 s2712_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb,
 	real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2751,7 +2757,7 @@ s2712_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.9 */
 /* Subroutine */ extern "C" int
 s291_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -2811,7 +2817,7 @@ s291_ (integer * ntimes, integer * ld, integer * n, real *
 /* %2.9 */
 /* Subroutine */ extern "C" int
 s292_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3399,8 +3405,7 @@ s317_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s319_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
-       real * bb, real * cc) {
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -3442,7 +3447,7 @@ s319_ (integer * ntimes, integer * ld, integer * n, real *
       // 50% gain for killing sum "optimization" on Core i7
 #ifdef __INTEL_COMPILER
 #pragma vector aligned
-#if defined _OPENMP && _OPENMP >= 201107
+#if defined _OPENMP && _OPENMP >= 201307
 #pragma omp simd reduction(+: sum)
 #endif
 #endif
@@ -3525,7 +3530,7 @@ s3111_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.1 */
 /* Subroutine */ extern "C" int
 s3112_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+	ctime, real * dtime, real * __restrict a, real * b, real * c__,
 	real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3640,7 +3645,7 @@ s3113_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.2 */
 /* Subroutine */ extern "C" int
 s321_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3697,7 +3702,7 @@ s321_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s323_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3872,7 +3877,7 @@ s332_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.4 */
 /* Subroutine */ extern "C" int
 s341_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3929,7 +3934,7 @@ s341_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.4 */
 /* Subroutine */ extern "C" int
 s342_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -3987,7 +3992,7 @@ s342_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s343_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * cc) {
+       real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -4045,8 +4050,8 @@ s343_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.5 */
 /* Subroutine */ extern "C" int
 s351_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real *  a, real *  b, real * c__,
-//       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * a, real * b, real * c__,
+//       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4108,7 +4113,7 @@ s351_ (integer * ntimes, integer * ld, integer * n, real *
 /* %3.5 */
 /* Subroutine */ extern "C" int
 s353_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc, integer * ip) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4177,9 +4182,8 @@ s353_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.1 */
 /* Subroutine */ extern "C" int
 s411_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -4233,8 +4237,7 @@ s411_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.1 */
 /* Subroutine */ extern "C" int
 s412_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real *__restrict a, real *__restrict b, 
-       real *__restrict c__, real * d__,
+       ctime, real * dtime, real *__restrict a, real *b, real *c__, real * d__,
        real * e, real * aa, real * bb, real * cc, integer * inc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4291,7 +4294,7 @@ s412_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s413_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e, real * aa,
+       real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1;
@@ -4350,7 +4353,7 @@ s413_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ extern "C" int
 s414_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * __restrict aa, real * __restrict bb, real * __restrict cc) {
+       real * e, real * __restrict aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -4411,8 +4414,8 @@ s414_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.1 */
 /* Subroutine */ extern "C" int
 s415_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb,
        real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4512,6 +4515,7 @@ s421_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
+#pragma ivdep
       transform(&y[1],&y[i__2]+1,&a[1],&x[0],plus<float>());
       dummy_ (ld, n, x, &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -4531,7 +4535,7 @@ s421_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.2 */
 /* Subroutine */ extern "C" int
 s422_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
+       ctime, real * dtime, real * a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4573,6 +4577,7 @@ s422_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#pragma ivdep
       transform(&cdata_1.array[8],&cdata_1.array[i__2+8],&a[1],&x[0],
 	plus<float>());
 //      for (i__ = 1; i__ <= i__2; ++i__)
@@ -4594,7 +4599,7 @@ s422_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.2 */
 /* Subroutine */ extern "C" int
 s423_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
+       ctime, real * dtime, real * a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4636,6 +4641,7 @@ s423_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
+#pragma ivdep
       transform(&x[0],&x[i__2],&a[1],&cdata_1.array[1],plus<float>());
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -4654,7 +4660,7 @@ s423_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.2 */
 /* Subroutine */ extern "C" int
 s424_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
+       ctime, real * dtime, real * a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4696,6 +4702,7 @@ s424_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
+#pragma ivdep
       transform(&cdata_1.array[0],&cdata_1.array[i__2],&a[1],&x[1],
 	plus<float>());
 //      for (i__ = 1; i__ <= i__2; ++i__)
@@ -4717,7 +4724,7 @@ s424_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.3 */
 /* Subroutine */ extern "C" int
 s431_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -4771,7 +4778,7 @@ s431_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.3 */
 /* Subroutine */ extern "C" int
 s432_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* Initialized data */
 
@@ -4831,9 +4838,8 @@ s432_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.4 */
 /* Subroutine */ extern "C" int
 s441_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
-       real * bb, real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -4871,7 +4877,7 @@ s441_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __MIC__
+#if defined __INTEL_COMPILER
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -4891,9 +4897,8 @@ s441_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.4 */
 /* Subroutine */ extern "C" int
 s443_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
-       real * bb, real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -4932,7 +4937,7 @@ s443_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201107 && __INTEL_COMPILER
+#if defined _OPENMP && _OPENMP >= 201307 && __INTEL_COMPILER
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -4951,9 +4956,8 @@ s443_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.5 */
 /* Subroutine */ extern "C" int
 s452_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5007,7 +5011,7 @@ s452_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.5 */
 /* Subroutine */ extern "C" int
 s453_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+       ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5123,9 +5127,8 @@ s471_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.8 */
 /* Subroutine */ extern "C" int
 s481_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * e, real * aa,
-       real * bb, real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5182,9 +5185,8 @@ s481_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.8 */
 /* Subroutine */ extern "C" int
 s482_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-       real * cc) {
+       ctime, real * dtime, real * __restrict a, real * b,
+       real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5241,9 +5243,9 @@ s482_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.11 */
 /* Subroutine */ extern "C" int
 s4112_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+	ctime, real * dtime, real * __restrict a, real * b, real * c__,
 	real * d__, real * e, real * aa, real * bb, real * cc, integer * ip,
-	real * __restrict s) {
+	real * s) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5298,8 +5300,12 @@ s4112_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.11 */
 /* Subroutine */ extern "C" int
 s4113_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
+#if __MIC__
+	ctime, real * dtime, real * __restrict a, real * b,
+#else
+	ctime, real * dtime, real * a, real * b,
+#endif
+	real * c__, real * d__, real * e, real * aa, real * bb,
 	real * cc, integer * ip) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5354,10 +5360,10 @@ s4113_ (integer * ntimes, integer * ld, integer * n, real *
 
 /* %4.11 */
 /* Subroutine */ extern "C" int
-s4114_ (integer * ntimes, integer * ld, integer * __restrict n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * __restrict d__, real * e, real * aa,
-	real * bb, real * cc, integer * ip, integer * __restrict n1) {
+s4114_ (integer * ntimes, integer * ld, integer * n, real *
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa,
+	real * bb, real * cc, integer * ip, integer * n1) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5529,9 +5535,8 @@ s4116_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.11 */
 /* Subroutine */ extern "C" int
 s4117_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * __restrict d__, real * e, real * aa,
-	real * bb, real * cc) {
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5585,9 +5590,8 @@ s4117_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.12 */
 /* Subroutine */ extern "C" int
 s4121_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-	real * cc) {
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -5641,7 +5645,7 @@ s4121_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 va_ (integer * ntimes, integer * ld, integer * n, real *
-     ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+     ctime, real * dtime, real * a, real * __restrict b, real * c__,
      real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5695,7 +5699,7 @@ va_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vag_ (integer * ntimes, integer * ld, integer * n, real *
-      ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+      ctime, real * dtime, real * __restrict a, real * b, real * c__,
       real * d__, real * e, real * aa, real * bb, real * cc, integer * ip) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5751,7 +5755,7 @@ vag_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vas_ (integer * ntimes, integer * ld, integer * n, real *
-      ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+      ctime, real * dtime, real * __restrict a, real * b, real * c__,
       real * d__, real * e, real * aa, real * bb, real * cc, integer * ip) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5807,7 +5811,7 @@ vas_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vif_ (integer * ntimes, integer * ld, integer * n, real *
-      ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+      ctime, real * dtime, real * __restrict a, real * b, real * c__,
       real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5919,7 +5923,7 @@ vpv_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vtv_ (integer * ntimes, integer * ld, integer * n, real *
-      ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+      ctime, real * dtime, real * __restrict a, real * b, real * c__,
       real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
@@ -5973,9 +5977,8 @@ vtv_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vpvtv_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-	real * cc) {
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -6029,9 +6032,9 @@ vpvtv_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vpvts_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b, real * c__,
+	ctime, real * dtime, real * __restrict a, real * b, real * c__,
 	real * d__, real * e, real * aa, real * bb, real * cc,
-	real * __restrict s) {
+	real * s) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -6085,9 +6088,8 @@ vpvts_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vtvtv_ (integer * ntimes, integer * ld, integer * n, real *
-	ctime, real * dtime, real * __restrict a, real * __restrict b,
-	real * __restrict c__, real * d__, real * e, real * aa, real * bb,
-	real * cc) {
+	ctime, real * dtime, real * __restrict a, real * b,
+	real * c__, real * d__, real * e, real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;
@@ -6249,9 +6251,9 @@ vdotr_ (integer * ntimes, integer * ld, integer * n, real *
 /* %5.1 */
 /* Subroutine */ extern "C" int
 vbor_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * __restrict b,
-       real * __restrict c__, real * __restrict d__, real * __restrict e,
-       real * __restrict aa, real * bb, real * cc) {
+       ctime, real * dtime, real * a, real * b,
+       real * c__, real * d__, real * e,
+       real * aa, real * bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2;

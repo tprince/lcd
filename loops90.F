@@ -487,10 +487,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s127 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-	    do i=1,n/2
-	      a(i*2-1)= b(i)+c(i)*d(i)
-	      a(i*2)= b(i)+d(i)*e(i)
-	    enddo
+	forall(i=1:n/2)a(i*2-1:i*2)= b(i)+[c(i),e(i)]*d(i)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)

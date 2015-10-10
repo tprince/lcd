@@ -375,7 +375,18 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s122 ')
       call forttime(t1)
       do nl= 1,ntimes
+#if __MIC__
 	  a(n1:n:n3)= a(n1:n:n3)+b(n:n-(n-n1)/n3:-1)
+#else
+! vectorization is slower even on AVX2
+!omp simd linear(k) does 80% of the job for MIC
+	  j= 1
+	  k= 0
+	  do i= n1,n,n3
+	      k= k+j
+	      a(i)= a(i)+b(n-k+1)
+	    enddo
+#endif
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -1463,7 +1474,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-#if 0 && defined __INTEL_COMPILER
+#if 1 && defined __INTEL_COMPILER
 	  do concurrent( i= 1:n, a(i) > b(i))
 	    a(i)= a(i)-b(i)*d(i)
 	    c(i)= a(i)+c(i)
@@ -1590,6 +1601,7 @@ C
 !dir$ no vector
 	do j= 1,n-1
 	  tmp= a(1)
+!dir$ unroll(2)
 	  do i= 2,n
 		tmp= aa(i,j)-tmp
 		aa(i,j)= tmp+bb(i,j)
@@ -1597,6 +1609,7 @@ C
 	    enddo
 !$omp end do nowait
 !$omp single
+!dir$ unroll(2)
 	  do i= 2,n
 		a(i)= aa(i,n)-a(i-1)
 		aa(i,n)= a(i)+bb(i,n)
@@ -3232,7 +3245,9 @@ C
       do nl= 1,ntimes
 #if defined __INTEL_COMPILER
 !$omp parallel do num_threads(2) if(n>103)
+#if !defined __MIC__
 !dir$ no vector
+#endif
 #endif
 	  do i= 1,n
 	      select case(indx(i))
