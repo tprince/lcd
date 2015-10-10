@@ -548,7 +548,7 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-#if defined __AVX2__ && OPENMP >= 201307 || defined __MIC__
+#if defined __MIC__
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -1446,7 +1446,7 @@ s275_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
 	for (j = 2; j <= i__3; ++j)
 //OK if i__2 <= aa_dim1 or aa_dim1 > 64
-#if defined __AVX2__ && OPENMP >= 201307 || defined __MIC__
+#if defined __AVX2__ && _OPENMP >= 201307 || defined __MIC__
 #pragma omp simd safelen(32)
 #endif
 	    for (i__ = 2; i__ <= i__2; ++i__)
