@@ -187,61 +187,6 @@ static real c_b393 = 0.f;
 /* *********************************************************************** */
 /* %1.1 */
 /* Subroutine */ extern "C" int
-s111_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * __restrict a, real * b, real * c__,
-       real * d__, real * e, real * aa, real * bb, real * cc) {
-  /* System generated locals */
-  integer i__;
-  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
-    i__2;
-
-  /* Local variables */
-  real t1, t2;
-  integer nl;
-  real chksum;
-
-
-/*     linear dependence testing */
-/*     no dependence - vectorizable */
-
-  /* Parameter adjustments */
-  cc_dim1 = *ld;
-  cc_offset = 1 + cc_dim1 * 1;
-  cc -= cc_offset;
-  bb_dim1 = *ld;
-  bb_offset = 1 + bb_dim1 * 1;
-  bb -= bb_offset;
-  aa_dim1 = *ld;
-  aa_offset = 1 + aa_dim1 * 1;
-  aa -= aa_offset;
-  --e;
-  --d__;
-  --c__;
-  --b;
-  --a;
-
-  /* Function Body */
-  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	 &bb[bb_offset], &cc[cc_offset], "s111 ", (ftnlen) 5);
-  forttime_ (&t1);
-  i__1 = *ntimes << 1;
-  for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = *n;
-      for (i__ = 2; i__ <= i__2; i__ += 2)
-	  a[i__] = a[i__ - 1] + b[i__];
-      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	      &bb[bb_offset], &cc[cc_offset], &c_b3);
-    }
-  forttime_ (&t2);
-  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes << 1);
-  chksum = cs1d_ (n, &a[1]);
-  i__1 = (*ntimes << 1) * (*n / 2);
-  check_ (&chksum, &i__1, n, &t2, "s111 ", (ftnlen) 5);
-  return 0;
-}				/* s111_ */
-
-/* %1.1 */
-/* Subroutine */ extern "C" int
 s112_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * __restrict a, real * b, real * c__,
        real * d__, real * e, real * aa, real * bb, real * cc) {
@@ -687,7 +632,7 @@ s122_ (integer * ntimes, integer * ld, integer * n, real *
       k = 0;
       i__2 = *n;
       i__3 = *n3;
-#if defined _OPENMP && _OPENMP >= 201307 && defined __MIC__
+#if _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
@@ -885,12 +830,7 @@ s127_ (integer * ntimes, integer * ld, integer * n, real *
 /* %1.2 */
 /* Subroutine */ extern "C" int
 s128_ (integer * ntimes, integer * ld, integer * n, real *
-#if __MIC__
-       // hack to make vectorization target-dependent
        ctime, real * dtime, real * __restrict a, real * __restrict b,
-#else
-       ctime, real * dtime, real * a, real * b,
-#endif
        real * c__, real * d__, real * e, real * aa,
        real * bb, real * cc) {
   /* System generated locals */
@@ -931,6 +871,9 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       j = 0;
       i__2 = *n / 2;
+#if ! __MIC__ && _OPENMP >= 201307
+#pragma omp simd safelen(1)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  a[i__] = b[k = j + 1] - d__[i__];
 	  j = k + 1;
@@ -2367,7 +2310,7 @@ s276_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 	for (i__ = 1; i__ < mid; ++i__)
 	    a[i__] += b[i__] * c__[i__];
-	for (; i__ <= i__2; ++i__)
+	for (i__ = mid; i__ <= i__2; ++i__)
 	    a[i__] += b[i__] * d__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -3446,8 +3389,7 @@ s319_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
       // 50% gain for killing sum "optimization" on Core i7
 #ifdef __INTEL_COMPILER
-#pragma vector aligned
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 #pragma omp simd reduction(+: sum)
 #endif
 #endif
@@ -3626,7 +3568,7 @@ s3113_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       max__ = abs (a[1]);
       i__2 = *n;
-#if defined _OPENMP && __INTEL_COMPILER >= 1500
+#if _OPENMP && __INTEL_COMPILER >= 1500
 #pragma omp simd reduction(max: max__)
 #endif
       for (i__ = 2; i__ <= i__2; ++i__)
@@ -4937,7 +4879,7 @@ s443_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201307 && __INTEL_COMPILER
+#if _OPENMP >= 201307 && __INTEL_COMPILER
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -5300,11 +5242,7 @@ s4112_ (integer * ntimes, integer * ld, integer * n, real *
 /* %4.11 */
 /* Subroutine */ extern "C" int
 s4113_ (integer * ntimes, integer * ld, integer * n, real *
-#if __MIC__
 	ctime, real * dtime, real * __restrict a, real * b,
-#else
-	ctime, real * dtime, real * a, real * b,
-#endif
 	real * c__, real * d__, real * e, real * aa, real * bb,
 	real * cc, integer * ip) {
   /* System generated locals */
@@ -5345,6 +5283,9 @@ s4113_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if ! __MIC__ && _OPENMP >= 201307
+#pragma omp simd safelen(1)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[ip[i__]] = b[ip[i__]] + c__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -5459,6 +5400,9 @@ s4115_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
       i__2 = *n;
+#if _OPENMP && __INTEL_COMPILER
+#pragma omp simd reduction(+: sum)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  sum += a[i__] * b[ip[i__]];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -5850,7 +5794,7 @@ vif_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if _OPENMP && __INTEL_COMPILER
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)

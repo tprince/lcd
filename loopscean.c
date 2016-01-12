@@ -5321,11 +5321,11 @@ s323_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
+      float tmp = b[1];
       i__2 = *n;
-#pragma unroll(4)
       for (i__ = 2; i__ <= i__2; ++i__) {
-	  a[i__] = b[i__ - 1] + c__[i__] * d__[i__];
-	  b[i__] = b[i__ - 1] + c__[i__] * (e[i__]+d__[i__]);
+	  a[i__] = tmp + c__[i__] * d__[i__];
+	  b[i__] =  tmp += c__[i__] * (e[i__]+d__[i__]);
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);

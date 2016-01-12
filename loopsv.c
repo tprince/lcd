@@ -168,79 +168,6 @@ static real c_b393 = 0.f;
 /*  levine@mcs.anl.gov                                                  * */
 /* *********************************************************************** */
 /* %1.1 */
-/* Subroutine */ int
-s111_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * restrict a, real *  b, real * c__,
-       real * d__, real * e, real * aa, real * bb, real * cc) {
-  /* System generated locals */
-  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
-    i__2;
-
-  /* Local variables */
-  extern /* Subroutine */ int init_ (integer *, integer *, real *, real *,
-				     real *, real *, real *, real *, real *,
-				     real *, char *, ftnlen),
-    forttime_ (real *);
-  integer i__;
-  extern /* Subroutine */ int check_ (real *, integer *, integer *, real *,
-				      char *, ftnlen), dummy_ (integer *,
-							       integer *,
-							       real *, real *,
-							       real *, real *,
-							       real *, real *,
-							       real *, real *,
-							       real *);
-  real t1, t2;
-  integer nl;
-  real chksum;
-  extern real cs1d_ (integer *, real *);
-
-
-/*     linear dependence testing */
-/*     no dependence - vectorizable */
-
-  /* Parameter adjustments */
-  cc_dim1 = *ld;
-  cc_offset = 1 + cc_dim1 * 1;
-  cc -= cc_offset;
-  bb_dim1 = *ld;
-  bb_offset = 1 + bb_dim1 * 1;
-  bb -= bb_offset;
-  aa_dim1 = *ld;
-  aa_offset = 1 + aa_dim1 * 1;
-  aa -= aa_offset;
-  --e;
-  --d__;
-  --c__;
-  --b;
-  --a;
-
-  /* Function Body */
-  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	 &bb[bb_offset], &cc[cc_offset], "s111 ", (ftnlen) 5);
-  forttime_ (&t1);
-  i__1 = *ntimes << 1;
-  for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = *n;
-//vectorization should trigger "seems inefficient"
-#ifndef __MIC__
-#pragma novector
-#pragma unroll(4)
-#endif
-      for (i__ = 2; i__ <= i__2; i__ += 2)
-	  a[i__] = a[i__ - 1] + b[i__];
-      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	      &bb[bb_offset], &cc[cc_offset], &c_b3);
-    }
-  forttime_ (&t2);
-  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes << 1);
-  chksum = cs1d_ (n, &a[1]);
-  i__1 = (*ntimes << 1) * (*n / 2);
-  check_ (&chksum, &i__1, n, &t2, "s111 ", (ftnlen) 5);
-  return 0;
-}				/* s111_ */
-
-/* %1.1 */
 #if defined __AVX__
 #include <immintrin.h>
 #elif defined __SSE2__
@@ -866,8 +793,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
       j = 0;
       i__2 = *n / 2;
 #ifndef __MIC__
-#pragma novector
-#pragma unroll(4)
+#pragma omp simd safelen(1)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  a[i__] = b[k = i__*2-1] - d__[i__];
@@ -1146,7 +1072,7 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
 #endif
       for (i__ = 1; i__ <= i__2; ++i__){
 	  a[i__] = (b[i__] >= 0.f)? c__[i__] + d__[i__] * e[i__]: a[i__];
-#if defined __AVX__ || defined __INTEL_COMPILER
+#if __AVX__ || __INTEL_COMPILER
 	}
       for (i__ = 1; i__ <= i__2; ++i__){
 #endif
@@ -1210,9 +1136,13 @@ s171_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
   __assume_aligned(b+1,64);
   __assume_aligned(a+1,64);
-// restrict ought to do the job without ivdep (gcc does)
-// stride 1 intentionally not visible at compile time
-#pragma ivdep
+#if _OPENMP >= 201307
+#if ! __MIC__ 
+#pragma omp simd safelen(1)
+#else
+#pragma omp simd
+#endif
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__ * *inc] += b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -1273,6 +1203,13 @@ s172_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
       i__3 = *n3;
       len = (i__2-*n1)/i__3+1;
+#if _OPENMP >= 201307
+#if ! __MIC__ 
+#pragma omp simd safelen(1)
+#else
+#pragma omp simd
+#endif
+#endif
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
 	  a[i__] += b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -1585,7 +1522,7 @@ s221_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #pragma unroll(4)
       for (i__ = 2; i__ <= i__2; ++i__)
-#if defined __MIC__ || !defined __INTEL_COMPILER
+#if __MIC__ || ! __INTEL_COMPILER
 	  a[i__] += c__[i__] * d__[i__];
       for (i__ = 2; i__ <= i__2; ++i__)
 	  b[i__] = a[i__] + d__[i__] + b[i__ - 1];
@@ -1713,7 +1650,7 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if _OPENMP >= 201307 && defined __INTEL_COMPILER
+#if _OPENMP >= 201307 && __INTEL_COMPILER
 #pragma omp parallel for simd if(i__2 > 53)
 	for (int i__ = 1; i__ <= i__2; ++i__) 
 	    for (int j = 2; j <= i__3; ++j)
@@ -1775,7 +1712,7 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
-#if _OPENMP >= 201307 && defined __INTEL_COMPILER
+#if _OPENMP >= 201307 && __INTEL_COMPILER
 #pragma omp parallel for simd if(*n > 53)
 	for(int i__ = 1; i__<= *n; ++i__)
 	    for(int j = 2; j <= *n; ++j)
@@ -1839,7 +1776,7 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if _OPENMP >= 201307 && defined __INTEL_COMPILER
+#if _OPENMP >= 201307 && __INTEL_COMPILER
 #pragma omp parallel for simd if(i__2 > 53)
       for (int i__ = 1; i__ <= i__2; ++i__){
 	  a[i__] += b[i__] * c__[i__];
@@ -2278,9 +2215,12 @@ s255_ (integer * ntimes, integer * ld, integer * n, real *
       x = b[*n];
       y = b[*n - 1];
       i__2 = *n;
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd
       for (i__ = 1; i__ <= i__2; ++i__) {
+      #if _OPENMP >= 201511
+      #pragma omp ordered simd
+      #endif
 	  a[i__] = (b[i__] + x + y) * .333f;
 	  y = x;
 	  x = b[i__];
@@ -3357,7 +3297,7 @@ s311_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
       i__2 = *n;
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd reduction(+: sum)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -3417,7 +3357,7 @@ s312_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       prod = 1.f;
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201307 && defined __INTEL_COMPILER
+#if defined __INTEL_COMPILER
 #pragma omp simd reduction(*: prod)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -3476,7 +3416,7 @@ s313_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       dot = 0.f;
       i__2 = *n;
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd reduction(+: dot)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -3720,7 +3660,7 @@ s317_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       q = 1.f;
       i__2 = *n;
-#if defined _OPENMP && _OPENMP >= 201307 && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd reduction(*: q)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -3783,9 +3723,6 @@ s319_ (integer * ntimes, integer * ld, integer * n, real *
       // 50% gain for killing sum "optimization" on Core i7
 #ifdef __INTEL_COMPILER
 #pragma vector aligned
-#if defined _OPENMP && _OPENMP >= 201307
-#pragma omp simd reduction(+: sum)
-#endif
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	a[i__] = c__[i__] + d__[i__];
@@ -4037,65 +3974,6 @@ s321_ (integer * ntimes, integer * ld, integer * n, real *
   check_ (&chksum, &i__1, n, &t2, "s321 ", (ftnlen) 5);
   return 0;
 }				/* s321_ */
-
-/* %3.2 */
-/* Subroutine */ int
-s323_ (integer * ntimes, integer * ld, integer * n, real *
-       ctime, real * dtime, real * restrict a, real * restrict b,
-       real *  c__, real *  d__, real *  e, real * aa,
-       real * bb, real * cc) {
-  /* System generated locals */
-  integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
-    i__2;
-
-  /* Local variables */
-  integer i__;
-  real t1, t2;
-  integer nl;
-  real chksum;
-
-
-/*     recurrences */
-/*     coupled recurrence */
-
-  /* Parameter adjustments */
-  cc_dim1 = *ld;
-  cc_offset = 1 + cc_dim1 * 1;
-  cc -= cc_offset;
-  bb_dim1 = *ld;
-  bb_offset = 1 + bb_dim1 * 1;
-  bb -= bb_offset;
-  aa_dim1 = *ld;
-  aa_offset = 1 + aa_dim1 * 1;
-  aa -= aa_offset;
-  --e;
-  --d__;
-  --c__;
-  --b;
-  --a;
-
-  /* Function Body */
-  init_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	 &bb[bb_offset], &cc[cc_offset], "s323 ", (ftnlen) 5);
-  forttime_ (&t1);
-  i__1 = *ntimes;
-  for (nl = 1; nl <= i__1; ++nl) {
-      float tmp = b[1];
-      i__2 = *n;
-      for (i__ = 2; i__ <= i__2; ++i__) {
-	  a[i__] = tmp + c__[i__] * d__[i__];
-	  b[i__] =  tmp += c__[i__] * (e[i__]+d__[i__]);
-	}
-      dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
-	      &bb[bb_offset], &cc[cc_offset], &c_b3);
-    }
-  forttime_ (&t2);
-  t2 = t2 - t1 - *ctime - *dtime * (real) (*ntimes);
-  chksum = cs1d_ (n, &a[1]) + cs1d_ (n, &b[1]);
-  i__1 = *ntimes * (*n - 1);
-  check_ (&chksum, &i__1, n, &t2, "s323 ", (ftnlen) 5);
-  return 0;
-}				/* s323_ */
 
 /* %3.3 */
 /* Subroutine */ int
@@ -5402,6 +5280,9 @@ s4113_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#ifndef __MIC__
+#pragma omp simd safelen(1)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[ip[i__]] = b[ip[i__]] + c__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -5516,7 +5397,7 @@ s4115_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       sum = 0.f;
       i__2 = *n;
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd reduction(+: sum)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -5917,7 +5798,7 @@ vif_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 #pragma vector aligned
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd aligned(a,b)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -6258,9 +6139,7 @@ vsumr_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #ifdef __INTEL_COMPILER
 #pragma vector aligned
-#if defined _OPENMP && _OPENMP >= 201307
-#pragma omp simd reduction(+: sum) aligned(a)
-#endif
+#pragma omp simd reduction(+: sum)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  sum += a[i__];
@@ -6318,7 +6197,7 @@ vdotr_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       dot = 0.f;
       i__2 = *n;
-#if defined _OPENMP && defined __INTEL_COMPILER
+#if __INTEL_COMPILER
 #pragma omp simd reduction(+: dot)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)

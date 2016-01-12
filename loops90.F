@@ -213,12 +213,6 @@ C
       do nl= 1,2*ntimes/n
 !$omp parallel do if(n>103)
 	  do j= 2,n
-#if defined __MIC__
-!dir$ no vector
-#else
-!dir$ simd
-!dir$ unroll(2)
-#endif
 	      aa(1:j-1,j)= aa(j,1:j-1)+bb(1:j-1,j)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -487,6 +481,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s127 ')
       call forttime(t1)
       do nl= 1,2*ntimes
+!dir$ ivdep
 	forall(i=1:n/2)a(i*2-1:i*2)= b(i)+[c(i),e(i)]*d(i)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -1070,6 +1065,7 @@ C
       do nl= 1,ntimes/n
 !$omp parallel if(n>103)
 !$omp do
+!dir$ no vector
 	do j= 2,n
 	  do i= 2,n
 	    bb(i,j)= bb(i-1,j)+cc(i,j)
@@ -1297,7 +1293,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s253 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC_ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
+#if __INTEL_COMPILER || __GNUC_ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
 !dir$ vector aligned
 	  do concurrent( i= 1:n, a(i) > b(i))
 	    a(i)= a(i)-b(i)*d(i)
@@ -1514,7 +1510,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s272 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || __GNUC_ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
+#if __INTEL_COMPILER || __GNUC_ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 7)
 !dir$ vector aligned
 	  do concurrent( i= 1:n, e(i) >= t)
 	    a(i)= a(i)+c(i)*d(i)
@@ -2344,7 +2340,7 @@ C
       do nl= 1,ntimes
 	  do i= 2,n
 	      a(i)= b(i-1)+c(i)*d(i)
-	      b(i)= b(i-1)+c(i)*(e(i)+d(i))
+	      b(i)= b(i-1)+(c(i)*(e(i)+d(i)))
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -2811,7 +2807,6 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 cdec$ loop count avg (1000)
-!dir$ omp simd safelen(32)
 	x(2:n)= array(:n-1)+a(:n-1)
 	call dummy(ld,n,x,b,c,d,e,aa,bb,cc,1.)
 	enddo

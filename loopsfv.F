@@ -145,6 +145,10 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s111 ')
       call forttime(t1)
       do nl= 1,2*ntimes
+#ifndef __MIC__
+!$omp simd safelen(1)
+#endif
+! gfortran is vectorizing this anyway
 	  do i= 2,n,2
 	    a(i)= a(i-1)+b(i)
 	    enddo
@@ -169,7 +173,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s112 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= n-1,1,-1
@@ -221,7 +225,7 @@ C
 !$omp parallel do if(n>103)
 	  do j= 2,n
 #if defined __MIC__
-!dir$ no vector
+!$omp simd safelen(1)
 #else
 !$ omp simd
 !dir$ unroll(2)
@@ -496,7 +500,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s126 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER && _OPENMP
 !$omp parallel do private(k) if(n>103)
 	  do i= 1,n
 	      k= i*n+1-n
@@ -558,12 +562,10 @@ C
       do nl= 1,2*ntimes
 #ifndef __MIC__
 !dir$ no vector
-!dir$ unroll(4)
 #endif
 	  a(:n/2)= b(:n-1:2)-d(:n/2)
 #ifndef __MIC__
 !dir$ no vector
-!dir$ unroll(4)
 #endif
 	  b(:n-1:2)= a(:n/2)+c(:n-1:2)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -798,7 +800,7 @@ C
       do nl= 1,ntimes
 	  if(k > 0) then
 #if !defined __INTEL_COMPILER 
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 #else
@@ -1107,7 +1109,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s231 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER && _OPENMP
 !$omp parallel do if(n>103)
 	  do i= 1,n
 	    do j= 2,n
@@ -1138,6 +1140,7 @@ C
 #endif
       integer ntimes,ld,n,i,nl,j
       integer nt,m,jbeg,jend
+      real tmp1,tmp2
       real avgchunk
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs2d
@@ -1209,7 +1212,7 @@ C
 	    enddo
 	enddo
 !$omp end do nowait
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER && _OPENMP
 !$omp do
 	  do i= 2,n
 	      do j= 2,n
@@ -1246,7 +1249,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s234 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER && _OPENMP
 !$omp parallel do if(n>103)
 	  do i = 1,n
 	      do j = 2,n
@@ -1278,7 +1281,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s235 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-#ifdef __INTEL_COMPILER
+#if __INTEL_COMPILER && _OPENMP
 !$omp parallel do if(n>103)
 	  do i=1,n
 	      a(i)= a(i)+b(i)*c(i)
@@ -1309,6 +1312,7 @@ C
       integer ntimes,ld,n,i,nl
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+      real tmp
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s241 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -1474,7 +1478,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-#if 1 && defined __INTEL_COMPILER
+#if 1 && __INTEL_COMPILER
 	  do concurrent( i= 1:n, a(i) > b(i))
 	    a(i)= a(i)-b(i)*d(i)
 	    c(i)= a(i)+c(i)
@@ -1593,6 +1597,7 @@ C
       integer ntimes,ld,n,i,nl,j
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d,cs2d
+      real tmp
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s257 ')
       call forttime(t1)
       do nl= 1,ntimes/n
@@ -1642,7 +1647,7 @@ C
 	      ss= merge(d(i)**2,ss,a(i) > 0.)
 	      s(i) = ss
 	    enddo
-#if defined __INTEL_COMPILER || defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -1720,7 +1725,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-#if 0 && defined __INTEL_COMPILER
+#if 0 && __INTEL_COMPILER
 	  do concurrent( i= 1:n, e(i) >= t)
 	    a(i)= a(i)+c(i)*d(i)
 	    b(i)= b(i)+c(i)*c(i)
@@ -2064,9 +2069,10 @@ C
 C     loop peeling
 C     wrap around variable, 2 levels
 C
-      integer ntimes,ld,n,i,nl,im1,im2
+      integer ntimes,ld,n,i,nl
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+      real x,y
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s292 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -2130,7 +2136,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s2101')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined __INTEL_COMPILER || !defined __AVX__
+#if __INTEL_COMPILER || ! __AVX__
 !$omp parallel do simd if(n>101)
 #endif
 	  do i= 1,n
@@ -2178,6 +2184,7 @@ C
       integer ntimes,ld,n,i,nl,j
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs2d
+      real tmp
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s2111')
       call forttime(t1)
       do nl= 1,ntimes/n
@@ -2227,7 +2234,7 @@ C     sum reduction
 C
       integer ntimes,ld,n,i,nl
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
-      real t1,t2,chksum,ctime,dtime,sum
+      real t1,t2,chksum,ctime,dtime,sumvar
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s311 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -2327,7 +2334,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s315 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if !defined __INTEL_COMPILER || defined __MIC__
+#if !__INTEL_COMPILER || __MIC__
 	    index= maxloc(a(:n),dim=1)
 	    x= a(index)
 #else
@@ -2366,7 +2373,7 @@ C
 	  x= minval(a(:n))
 #else
 	  x= a(1)
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd reduction(min: x)
 #endif
 	  do i= 2,n
@@ -2641,7 +2648,7 @@ C
       do nl= 1,ntimes
 	  do i= 2,n
 	      a(i)= b(i-1)+c(i)*d(i)
-	      b(i)= b(i-1)+c(i)*(e(i)+d(i))
+	      b(i)= b(i-1)+(c(i)*(e(i)+d(i)))
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -2841,7 +2848,8 @@ C
       do nl= 1,5*ntimes
 	  dot= 0.
 #ifndef __MIC__
-!dir$ no vector
+!dir$ novector
+!$omp simd safelen(1)
 #endif
 	  do i= 1,n,5
 	    dot= dot+(a(i)*b(i)+a(i+1)*b(i+1)+a(i+2)*b(i+2)+
@@ -3039,7 +3047,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !	x(:n-1)= y(2:n)+a(:n-1)
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n-1
@@ -3072,7 +3080,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s422 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
@@ -3104,7 +3112,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s423 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd safelen(32)
 #endif
 	  do i= 1,n-1
@@ -3474,7 +3482,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s491 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if defined _OPENMP && _OPENMP >= 201307
+#if _OPENMP >= 201307
 !$omp simd
 #endif
 	  do i= 1,n
