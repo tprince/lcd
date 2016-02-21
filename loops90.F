@@ -2364,15 +2364,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s331 ')
       call forttime(t1)
       do nl= 1,ntimes
-C certain Intel compilers hit alignment faults if the merge array is declared
-C gfortran 4.6.1 gets wrong result without such a declaration
-#if defined __INTEL_COMPILER
-	  i= merge(1.,0.,a(n:1:-1) < 0)
-	  j= n-maxloc(i,dim=1)+1
-#else
-	  j= n-maxloc(merge(1.,0.,a(n:1:-1) < 0),dim=1)+1
-#endif
-!	  j= n-findloc(merge(1.,0.,a(:n) < 0),dim=1,back)+1
+	  j= findloc(a(:n) < 0,.true.,.true.)
 	  chksum= float(j)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
 	enddo
@@ -2381,6 +2373,21 @@ C gfortran 4.6.1 gets wrong result without such a declaration
       chksum= float(j)
       call check(chksum,ntimes*n,n,t2,'s331 ')
       return
+      contains
+      integer function findloc(a,val,back)result(i)
+      logical a(:),val,back
+      if(back)then
+      do i=size(a),1,-1
+        if(a(i).eqv.val)exit
+        enddo
+      else
+      do i=1,size(a)
+        if(a(i).eqv.val)exit
+        enddo
+        endif
+        if(i>size(a))i=0
+        return
+      end function findloc
       end
 C%3.3
       subroutine s332(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc,t)
@@ -2397,9 +2404,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-	  tmp= merge(1,0,a(:n) > t)
-	  index= maxloc(tmp,dim=1)
-!	  index= findloc(i,1.,dim=1)
+	  index= findloc(a(:n) > t,.true.)
 	  value= a(index)
           chksum= value+float(index)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
@@ -2409,6 +2414,15 @@ C
       chksum= value+float(index)
       call check(chksum,ntimes*n,n,t2,'s332 ')
       return
+      contains
+      integer function findloc(a,val)result(i)
+      logical a(:),val
+      do i=1,size(a)
+        if(a(i).eqv.val)exit
+        enddo
+        if(i>size(a))i=0
+        return
+      end function findloc
       end
 C%3.4
       subroutine s341(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -2690,8 +2704,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-	  tmp= merge(1,0,a(:n) < 0)
-	  i= maxloc(tmp,dim=1)
+	  i= findloc(a(:n) < 0,.true.)
 !dir$ vector aligned
 	  a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -2701,6 +2714,15 @@ C
       chksum= cs1d(n,a)
       call check(chksum,ntimes*(n-1),n,t2,'s415 ')
       return
+      contains
+      integer function findloc(a,val)result(i)
+      logical a(:),val
+      do i=1,size(a)
+        if(a(i).eqv.val)exit
+        enddo
+        if(i>size(a))i=0
+        return
+      end function findloc
       end
 C%4.2
       subroutine s421(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -3064,10 +3086,10 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s481 ')
       call forttime(t1)
       do nl= 1,ntimes
-	  do i= 1,n
-	      if(d(i) <  0.) stop 'stop 1'
-	      a(i)= a(i)+b(i)*c(i)
-	    enddo
+          i=findloc(d(:n) < 0.,.true.) 
+          if(i<1)i= n +1
+          a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
+          if(d(i) < 0.) stop 'stop 1'
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -3076,6 +3098,15 @@ C
       call check(chksum,ntimes*n,n,t2,'s481 ')
       return
       stop
+      contains
+      integer function findloc(a,val)result(i)
+      logical a(:),val
+      do i=1,size(a)
+        if(a(i).eqv.val)exit
+        enddo
+        if(i>size(a))i=0
+        return
+      end function findloc
       end
 C%4.8
       subroutine s482(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -3090,10 +3121,11 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s482 ')
       call forttime(t1)
       do nl= 1,ntimes
-	  do i= 1,n
-	      a(i)= a(i)+b(i)*c(i)
-	      if(c(i) >  b(i)) return
-	    enddo
+!dir$ vector aligned
+          i=findloc(c(:n) > b(:n),.true.)
+          if(i<1)i=n
+          a(:i)= a(:i)+b(:i)*c(:i)
+          if(c(i) > b(i))return
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -3101,6 +3133,15 @@ C
       chksum= cs1d(n,a)
       call check(chksum,ntimes*n,n,t2,'s482 ')
       return
+      contains
+      integer function findloc(a,val)result(i)
+      logical a(:),val
+      do i=1,size(a)
+        if(a(i).eqv.val)exit
+        enddo
+        if(i>size(a))i=0
+        return
+      end function findloc
       end
 C%4.9
       subroutine s491(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc,ip)

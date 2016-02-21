@@ -2090,7 +2090,7 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if _OPENMP < 201307 || ! __INTEL_COMPILER &&  __AVX__
+#if _OPENMP < 201307 || (! __INTEL_COMPILER) &&  __AVX__
 #pragma omp parallel for num_threads(4) if(i__2 > 103)
 #else
 #pragma omp parallel for simd num_threads(4) if(i__2 > 103)

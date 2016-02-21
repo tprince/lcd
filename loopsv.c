@@ -5102,11 +5102,14 @@ s481_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-      for (i__ = 1; i__ <= i__2; ++i__) {
+      for (i__ = 1; i__ <= i__2; ++i__)
 	  if (d__[i__] < 0.f)
-	      exit (EXIT_FAILURE);
+	      break;
+      i__2 = i__ - 1;
+      for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += b[i__] * c__[i__];
-	}
+      if (d__[i__2] < 0.f)
+	  exit (EXIT_FAILURE);
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -5162,11 +5165,14 @@ s482_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 #pragma vector aligned
-      for (i__ = 1; i__ <= i__2; ++i__) {
-	  a[i__] += b[i__] * c__[i__];
+      for (i__ = 1; i__ <= i__2; ++i__)
 	  if (c__[i__] > b[i__])
-	      return 0;
-	}
+	      break;
+      i__2 = i__>i__2?i__2:i__;
+      for (i__ = 1; i__ <= i__2; ++i__)
+	  a[i__] += b[i__] * c__[i__];
+      if (c__[i__2] > b[i__2])
+	  return 0;
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

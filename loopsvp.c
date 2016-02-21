@@ -2434,7 +2434,7 @@ s451_ (integer * ntimes, integer * ld, integer * n, real *
     int nt= maxt>6? 6:maxt;
 #endif
       i__2 = *n;
-#if _OPENMP < 201307 || ! __INTEL_COMPILER && __AVX__
+#if _OPENMP < 201307 || (! __INTEL_COMPILER) &&  __AVX__
 #pragma omp parallel for num_threads(nt) if(i__2 > 103)
 #else
 #pragma omp parallel for simd num_threads(nt) if(i__2 > 103)

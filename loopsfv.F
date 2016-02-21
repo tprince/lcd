@@ -3432,9 +3432,10 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 	  do i= 1,n
-	      if(d(i) < 0.) stop 'stop 1'
-	      a(i)= a(i)+b(i)*c(i)
+	      if(d(i) < 0.) exit
 	    enddo
+          a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
+          if(d(i) < 0.) stop 'stop 1'
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -3457,10 +3458,13 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s482 ')
       call forttime(t1)
       do nl= 1,ntimes
+!dir$ vector aligned
 	  do i= 1,n
-	      a(i)= a(i)+b(i)*c(i)
-	      if(c(i) > b(i)) return
+	      if(c(i) > b(i)) exit
 	    enddo
+          i=min(i,n)
+          a(:i)= a(:i)+b(:i)*c(:i)
+          if(c(i) > b(i))return
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
