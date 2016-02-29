@@ -1076,8 +1076,7 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
 	}
       for (i__ = 1; i__ <= i__2; ++i__){
 #endif
-	  if(!(b[i__] >= 0.f))
-	  c__[i__ + 1] = a[i__] + d__[i__] * d__[i__];
+	  c__[i__ + 1] = (b[i__] >= 0.f)? c__[i__ + 1] : a[i__] + d__[i__] * d__[i__];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -1266,6 +1265,7 @@ s174_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes << 1;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n / 2;
+#pragma GCC ivdep
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] = a[i__ + i__2] + b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -2093,12 +2093,14 @@ s253_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 #pragma vector aligned
-#if defined __MIC__
+#if __MIC__
 #pragma omp simd
 #endif
-      for (i__ = 1; i__ <= i__2; ++i__)
-	  if (a[i__] > b[i__])
-	      c__[i__] += a[i__] -= b[i__] * d__[i__];
+      for (i__ = 1; i__ <= i__2; ++i__){
+	  float tmp = a[i__];
+	  a[i__] -= (tmp > b[i__]? b[i__] : 0.f) * d__[i__];
+	  c__[i__] += (tmp > b[i__])?a[i__] : 0.f;
+	  }
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -2725,10 +2727,10 @@ s278_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #pragma vector aligned
       for (i__ = 1; i__ <= i__2; ++i__)
-	  if (a[i__] <= 0.f)
-	      b[i__] = -b[i__] + d__[i__] * e[i__];
-	  else
-	      c__[i__] = -c__[i__] + d__[i__] * e[i__];
+	  b[i__] =  (a[i__] <= 0.f)? -b[i__] + d__[i__] * e[i__]: b[i__];
+#pragma vector aligned
+      for (i__ = 1; i__ <= i__2; ++i__)
+	  c__[i__] = (a[i__] <= 0.f)?c__[i__]: -c__[i__] + d__[i__] * e[i__];
 #pragma vector aligned
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] = b[i__] + c__[i__] * d__[i__];

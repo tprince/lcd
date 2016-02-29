@@ -1677,13 +1677,9 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-	  where(a(:n) <= 0.)
-	    b(:n)= -b(:n)+d(:n)*e(:n)
-	    endwhere
+	  where(a(:n) <= 0.) b(:n)= -b(:n)+d(:n)*e(:n)
 !dir$ vector aligned
-	  where(.not. a(:n) <= 0.)
-	      c(:n)= -c(:n)+d(:n)*e(:n)
-	    endwhere
+	  where(.not. a(:n) <= 0.) c(:n)= -c(:n)+d(:n)*e(:n)
 !dir$ vector aligned
 	  a(:n)= b(:n)+c(:n)*d(:n)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)

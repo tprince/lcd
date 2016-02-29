@@ -500,7 +500,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s126 ')
       call forttime(t1)
       do nl= 1,ntimes/n
-#if __INTEL_COMPILER && _OPENMP
+#if (__INTEL_COMPILER || ! __AVX__) && _OPENMP
 !$omp parallel do private(k) if(n>103)
 	  do i= 1,n
 	      k= i*n+1-n
@@ -770,13 +770,11 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s161 ')
       call forttime(t1)
       do nl= 1,ntimes
+!dir$ assume_aligned a:64,d:64,b:64,e:64,c:64
+!dir$ vector always
+	where(b(:n-1) < 0) c(2:n)= a(:n-1)+d(:n-1)*d(:n-1)
 !dir$ vector aligned
-	  do i= 1,n-1
-	    if(b(i) >= 0.) a(i)= c(i)+d(i)*e(i)
-	    enddo
-	  do i= 1,n-1
-	    if(.not. b(i) >= 0.) c(i+1)= a(i)+d(i)*d(i)
-	    enddo
+	where(.not. b(:n-1) < 0) a(:n-1)= c(:n-1)+d(:n-1)*e(:n-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
