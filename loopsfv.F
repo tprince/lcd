@@ -140,15 +140,19 @@ C     linear dependence testing
 C     no dependence - vectorizable
 C
       integer ntimes,ld,n,i,nl
-      real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
+      real a(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+#if __INTEL_COMPILER
+      real :: b(n)
+#else
+      real,volatile :: b(n)     ! stop vectorization
+#endif
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s111 ')
       call forttime(t1)
       do nl= 1,2*ntimes
 #ifndef __MIC__
 !$omp simd safelen(1)
 #endif
-! gfortran is vectorizing this anyway
 	  do i= 2,n,2
 	    a(i)= a(i-1)+b(i)
 	    enddo
@@ -329,9 +333,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes/n
 	  do j= 2,n
-	    do i= 2,n
-	      aa(i,j)= aa(i-1,j-1)+bb(i,j)
-	      enddo
+	      aa(2:n,j)= aa(:n-1,j-1)+bb(2:n,j)
 	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -374,23 +376,27 @@ C     induction variable recognition
 C     variable lower and upper bound, and stride
 C
       integer ntimes,ld,n,i,nl,j,k,n1,n3
-      real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
+      real a(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+#if __INTEL_COMPILER
+      real :: b(n)
+#else
+      real,volatile :: b(n)     ! stop vectorization
+#endif
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s122 ')
       call forttime(t1)
       do nl= 1,ntimes
-#if __MIC__
-	  a(n1:n:n3)= a(n1:n:n3)+b(n:n-(n-n1)/n3:-1)
-#else
 ! vectorization is slower even on AVX2
 !omp simd linear(k) does 80% of the job for MIC
 	  j= 1
 	  k= 0
+#if __MIC__ 
+!$omp simd
+#endif
 	  do i= n1,n,n3
 	      k= k+j
 	      a(i)= a(i)+b(n-k+1)
 	    enddo
-#endif
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -443,13 +449,7 @@ C
       call forttime(t1)
       do nl= 1,2*ntimes
 !dir$ vector aligned
-#ifdef __MIC__
 	a(:n/2)=merge(b(:n/2),c(:n/2),b(:n/2)>0)+d(:n/2)*e(:n/2)
-#else
-	  do i= 1,n/2
-	    a(i)= merge(b(i),c(i),b(i) > 0.)+d(i)*e(i)
-	    enddo
-#endif
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -954,7 +954,7 @@ C     convolution
 C
       integer ntimes,ld,n,i,nl,j,m
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
-      real t1,t2,chksum,ctime,dtime,cs1d, cr(n/2)
+      real t1,t2,chksum,ctime,dtime,cs1d
       m= n/2
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s176 ')
       call forttime(t1)
@@ -1108,7 +1108,11 @@ C
       call forttime(t1)
       do nl= 1,ntimes/n
 #if __INTEL_COMPILER && _OPENMP
+#if ! __MIC__
 !$omp parallel do if(n>103)
+#else
+!$omp parallel do simd if(n>103)
+#endif
 	  do i= 1,n
 	    do j= 2,n
 #else
@@ -1210,8 +1214,8 @@ C
 	    enddo
 	enddo
 !$omp end do nowait
-#if __INTEL_COMPILER && _OPENMP
-!$omp do
+#if __MIC__
+!$omp do simd
 	  do i= 2,n
 	      do j= 2,n
 #else
@@ -1222,7 +1226,7 @@ C
 		aa(i,j)= aa(i,j-1)+cc(i,j)
 		enddo
 	    enddo
-#ifndef __INTEL_COMPILER
+#if ! __MIC__
 !$omp end single
 #endif
 !$omp end parallel
@@ -1248,7 +1252,11 @@ C
       call forttime(t1)
       do nl= 1,ntimes/n
 #if __INTEL_COMPILER && _OPENMP
+#if ! __MIC__
 !$omp parallel do if(n>103)
+#else
+!$omp parallel do simd if(n>103)
+#endif
 	  do i = 1,n
 	      do j = 2,n
 #else
@@ -1535,7 +1543,7 @@ C
 !	  a(:n)= (b(:n)+cshift(b(:n),1)+cshift(b(:n),2))*.333
 	  x= b(n)
 	  y= b(n-1)
-#ifdef __INTEL_COMPILER	  
+#if __INTEL_COMPILER
 !$omp simd
 	  do i= 1,n
 	      a(i)= (b(i)+x+y)*.333
@@ -3741,11 +3749,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-	  do i= 1,n
-	    if(b(i) > 0.)then
-	      a(i)= b(i)
-	      endif
-	    enddo
+	  a(:n)= merge(b(:n),a(:n),b(:n) > 0.) 
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -3921,7 +3925,12 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'vdotr')
       call forttime(t1)
       do nl= 1,ntimes
-	    dot= dot_product(a(:n),b(:n))
+	  dot= 0.
+! this is for gfortran, requires n divisible by 2
+	  do i= 1,n/2
+	    dot= dot+(a(i)*b(i)+a(i+n/2)*b(i+n/2))
+	    enddo
+!	    dot= dot_product(a(:n),b(:n))
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,dot)
 	enddo
       call forttime(t2)

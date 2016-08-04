@@ -513,10 +513,6 @@ s119_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
       for (j = 2; j <= i__2; ++j) {
-#ifndef __SUNPRO_CC
-//OK if i__3 <= aa_dim1 or aa_dim1 >= 64
-#pragma ivdep
-#endif
 	transform(&aa[1+(j-1)*aa_dim1],&aa[i__3+(j-1)*aa_dim1],
 	    &bb[2+j*bb_dim1],&aa[2+j*aa_dim1],plus<float>());
 	}
@@ -752,9 +748,6 @@ s124_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       j = 0;
       i__2 = *n / 2;
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	    a[++j] = (b[i__] > 0.f?b[i__]:c__[i__]) + d__[i__] * e[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -871,7 +864,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       j = 0;
       i__2 = *n / 2;
-#if ! __MIC__ && _OPENMP >= 201307
+#if ! __KNC__ && _OPENMP >= 201307
 #pragma omp simd safelen(1)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
@@ -934,7 +927,7 @@ s131_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
-      i__2 = *n - 1;
+      i__2 = *n - m;
       transform(&a[1+m],&a[i__2+m]+1,&b[1],&a[1],plus<float>());
 //      for (i__ = 1; i__ <= i__2; ++i__)
 //	  a[i__] = a[i__ + m] + b[i__];
@@ -1063,7 +1056,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __INTEL_COMPILER
+#if _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; ++i__) {
@@ -1832,9 +1825,6 @@ s253_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  if (a[i__] > b[i__])
 	      c__[i__] += a[i__] -= b[i__] * d__[i__];
@@ -2426,13 +2416,13 @@ s278_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-      for (i__ = 1; i__ <= i__2; ++i__) 
+      for (i__ = 1; i__ <= i__2; ++i__) {
 	  if (a[i__] <= 0.f)
 	      b[i__] = -b[i__] + d__[i__] * e[i__];
 	  else
 	      c__[i__] = -c__[i__] + d__[i__] * e[i__];
-      for (i__ = 1; i__ <= i__2; ++i__) 
 	  a[i__] = b[i__] + c__[i__] * d__[i__];
+	  }
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -2552,9 +2542,6 @@ s2710_ (integer * ntimes, integer * ld, integer * n, real *
       int ng10 = *n > 10;
       int xg0 = *x > 0;
       i__2 = *n;
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  if (a[i__] > b[i__]) {
 	      a[i__] += b[i__] * d__[i__];
@@ -2620,9 +2607,6 @@ s2711_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 // this breaks gcc/g++ 4.9 at -O3 but works well at -O2 
 // plus all partial O3 flags except vect-cost-model
@@ -2681,9 +2665,6 @@ s2712_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += (a[i__] > b[i__]? b[i__]: 0.f) * c__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -4457,7 +4438,6 @@ s421_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-#pragma ivdep
       transform(&y[1],&y[i__2]+1,&a[1],&x[0],plus<float>());
       dummy_ (ld, n, x, &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -4519,7 +4499,6 @@ s422_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#pragma ivdep
       transform(&cdata_1.array[8],&cdata_1.array[i__2+8],&a[1],&x[0],
 	plus<float>());
 //      for (i__ = 1; i__ <= i__2; ++i__)
@@ -4583,7 +4562,6 @@ s423_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-#pragma ivdep
       transform(&x[0],&x[i__2],&a[1],&cdata_1.array[1],plus<float>());
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -4644,7 +4622,6 @@ s424_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-#pragma ivdep
       transform(&cdata_1.array[0],&cdata_1.array[i__2],&a[1],&x[1],
 	plus<float>());
 //      for (i__ = 1; i__ <= i__2; ++i__)
@@ -5283,7 +5260,7 @@ s4113_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#if ! __MIC__ && _OPENMP >= 201307
+#if ! __KNC__ && _OPENMP >= 201307
 #pragma omp simd safelen(1)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)

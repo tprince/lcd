@@ -982,47 +982,12 @@ s126_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-#if defined __AVX2__ 
-      cilk_for (int i__ = 1; i__ <= i__2; i__ += 8) {
-	  int k = i__ * i__3 - i__3;
-	  __m256 tmp = _mm256_loadu_ps(&bb[i__ + bb_dim1]);
-	  for (int j = 2; j <= i__3; ++j){
-	      __m256 tmp1 = _mm256_set_ps(cdata_1.array[k+7*i__3],
-		  cdata_1.array[k+6*i__3],cdata_1.array[k+5*i__3],
-		  cdata_1.array[k+4*i__3],cdata_1.array[k+3*i__3],
-		  cdata_1.array[k+2*i__3],cdata_1.array[k+1*i__3],
-		  cdata_1.array[k+0*i__3]);
-	      tmp=_mm256_add_ps(tmp,_mm256_mul_ps(tmp1,
-	       _mm256_loadu_ps(&cc[i__ + j * cc_dim1])));
-	      // this will break if 32-byte alignment isn't supported
-	      _mm256_store_ps(&bb[i__ + j * bb_dim1],tmp);
-	      ++k;
-	      }
-	  }
-#else
-#if defined __SSE2__
-      cilk_for (int i__ = 1; i__ <= i__2; i__ += 4) {
-	  int k = i__ * i__3 - i__3;
-	  __m128 tmp = _mm_loadu_ps(&bb[i__ + bb_dim1]);
-	  for (int j = 2; j <= i__3; ++j){
-	      __m128 tmp1 = _mm_set_ps(cdata_1.array[k+3*i__3],
-		  cdata_1.array[k+2*i__3],cdata_1.array[k+1*i__3],
-		  cdata_1.array[k+0*i__3]);
-	      __m128 tmp2 = _mm_loadu_ps(&cc[i__ + j * cc_dim1]);
-	      tmp=_mm_add_ps(tmp,_mm_mul_ps(tmp1,tmp2));
-	      _mm_store_ps(&bb[i__ + j * bb_dim1],tmp);
-	      ++k;
-	      }
-	  }
-#else
-      cilk_for (int i__ = 1; i__ <= i__2; ++i__ ) {
+      cilk_for _Simd (int i__ = 1; i__ <= i__2; ++i__ ) {
 	  int k = i__ * i__3 - i__3;
 	  for (int j = 2; j <= i__3; ++j)
 	      bb[i__ + j * bb_dim1] = bb[i__ + (j - 1) * bb_dim1] +
 		cdata_1.array[k++] * cc[i__ + j * cc_dim1];
 	}
-#endif
-#endif
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -2214,9 +2179,12 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-    for (int j = 2; j <= i__3; ++j)
-	aa[1 + j * aa_dim1:i__2] = aa[1 + (j - 1) * aa_dim1:i__2] + bb[1 
-		    + j * bb_dim1:i__2];
+      cilk_for _Simd (int i__ = 1; i__ <= i__2; ++i__){
+	  a[i__] += b[i__] * c__[i__];
+	  for (int j = 2; j <= i__3; ++j)
+	      aa[i__ + j * aa_dim1] = aa[i__ + (j - 1) * aa_dim1] + bb[i__
+						       + j * bb_dim1] * a[i__];
+      }
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -2232,7 +2200,7 @@ s231_ (integer * ntimes, integer * ld, integer * n, real *
 /* Subroutine */ int
 s232_ (integer * ntimes, integer * ld, integer * n, real *
        ctime, real * dtime, real * a, real * b, real * c__, real * d__,
-       real * e, real * restrict aa, real *  bb, real * cc) {
+       real * e, real * aa, real *  bb, real * cc) {
   /* System generated locals */
   integer aa_dim1, aa_offset, bb_dim1, bb_offset, cc_dim1, cc_offset, i__1,
     i__2, i__3;
@@ -2396,9 +2364,10 @@ s234_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
-	for(int j = 2; j <= *n; ++j)
-	    aa[1 + j * aa_dim1:*n] = aa[1 + (j - 1) * aa_dim1:*n] +
-		bb[1 + (j - 1) * bb_dim1:*n] * cc[1 + (j - 1) * cc_dim1:*n];
+	cilk_for _Simd (int i__ = 1; i__<= *n; ++i__)
+	    for(int j = 2; j <= *n; ++j)
+		aa[i__ + j * aa_dim1] = aa[i__ + (j - 1) * aa_dim1] +
+		    bb[i__ + (j - 1) * bb_dim1] * cc[i__ + (j - 1) * cc_dim1];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -2453,10 +2422,12 @@ s235_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes / *n;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = i__3 = *n;
-	a[1:i__2] += b[1:i__2] * c__[1:i__2];
-      for (int j = 2; j <= i__3; ++j)
-	  aa[1 + j * aa_dim1:i__2] = aa[1 + (j - 1) * aa_dim1:i__2] + bb[1
-					       + j * bb_dim1:i__2] * a[1:i__2];
+      cilk_for _Simd (int i__ = 1; i__ <= i__2; ++i__){
+	  a[i__] += b[i__] * c__[i__];
+	  for (int j = 2; j <= i__3; ++j)
+	      aa[i__ + j * aa_dim1] = aa[i__ + (j - 1) * aa_dim1] + bb[i__
+						       + j * bb_dim1] * a[i__];
+	  }
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -3668,12 +3639,11 @@ s277_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
-      for (i__ = 1; i__ <= i__2; ++i__)
-	  if (a[i__] < 0.f) {
-	      b[i__ + 1] = c__[i__] + d__[i__] * e[i__];
-	      if (b[i__] < 0.f)
-		  a[i__] += c__[i__] * d__[i__];
-	    }
+      b[2:i__2] = a[1:i__2] < 0 ?c__[1:i__2] +  d__[1:i__2] * 
+	e[1:i__2]:b[2:i__2];
+#pragma nofusion
+      a[1:i__2] += (a[1:i__2] < 0 && b[1:i__2] < 0 ? d__[1:i__2] : 0) *
+	  c__[1:i__2];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

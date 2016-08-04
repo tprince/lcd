@@ -140,8 +140,13 @@ C     linear dependence testing
 C     no dependence - vectorizable
 C
       integer ntimes,ld,n,i,nl
-      real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
+      real a(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+#if __INTEL_COMPILER
+      real :: b(n)
+#else
+      real,volatile :: b(n)     ! stop vectorization
+#endif
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s111 ')
       call forttime(t1)
       do nl= 1,2*ntimes
@@ -346,8 +351,13 @@ C     induction variable recognition
 C     variable lower and upper bound, and stride
 C
       integer ntimes,ld,n,i,nl,j,k,n1,n3
-      real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
+      real a(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+#if __INTEL_COMPILER
+      real :: b(n)
+#else
+      real,volatile :: b(n)     ! stop vectorization
+#endif
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s122 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -504,12 +514,12 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s128 ')
       call forttime(t1)
       do nl= 1,2*ntimes
-#ifndef __MIC__
+#if ! __MIC__ && ! __AVX512F__
 !dir$ no vector
 !dir$ unroll(4)
 #endif
 	  a(:n/2)= b(:n-1:2)-d(:n/2)
-#ifndef __MIC__
+#if ! __MIC__ && ! __AVX512F__
 !dir$ no vector
 !dir$ unroll(4)
 #endif
@@ -1145,6 +1155,7 @@ C
       integer ntimes,ld,n,i,nl
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d
+      real tmp
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s241 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -1394,6 +1405,7 @@ C
       integer ntimes,ld,n,i,nl,j
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,cs1d,cs2d
+      real tmp
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s257 ')
       call forttime(t1)
       do nl= 1,ntimes/n
@@ -1648,13 +1660,12 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s277 ')
       call forttime(t1)
       do nl= 1,ntimes
-! not valid for do concurrent
+! not valid for single do concurrent
 !dir$ assume_aligned a:64,b:64,c:64,d:64,e:64
-!dir$ ivdep
-	  forall (i=1:n-1,a(i) < 0)
-	    b(i+1)= c(i)+d(i)*e(i)
-	    a(i)= a(i)+merge(c(i),0.,b(i) < 0.) *d(i)
-            endforall
+	  where(a(:n-1) < 0)b(2:n)= c(:n-1)+d(:n-1)*e(:n-1)
+!dir$ nofusion
+          a(:n-1)= a(:n-1)+merge(d(:n-1),0.,max(a(:n-1),b(:n-1)) < 0)
+     &*c(:n-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -1704,9 +1715,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
-	  where(a(:n) > 0)
-	    c(:n)= -c(:n)+e(:n)*e(:n)
-	    endwhere
+	  where(a(:n) > 0) c(:n)= -c(:n)+e(:n)*e(:n)
 !dir$ vector aligned
 	  where(.not. a(:n) > 0)
 		b(:n)= -b(:n)+d(:n)*d(:n)
@@ -2356,7 +2365,6 @@ C
       integer ntimes,ld,n,nl,j
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime
-      real i(n) !! no longer used by ifort
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s331 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -2395,7 +2403,6 @@ C
       integer ntimes,ld,n,nl,index
       real a(n),b(n),c(n),d(n),e(n),aa(ld,n),bb(ld,n),cc(ld,n)
       real t1,t2,chksum,ctime,dtime,t,value
-      integer tmp(n)
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s332 ')
       call forttime(t1)
       do nl= 1,ntimes
@@ -2535,8 +2542,9 @@ C
       call forttime(t1)
       do nl= 1,5*ntimes
 	  dot= 0.
-#ifndef __MIC__
+#if ! __MIC__ && ! __AVX512F__
 !dir$ no vector
+!$omp simd safelen(1)
 #endif
 	  do i= 1,n,5
 	    dot= dot+(a(i)*b(i)+a(i+1)*b(i+1)+a(i+2)*b(i+2)+

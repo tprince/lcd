@@ -1,7 +1,7 @@
 # setup: replace vcvars call in iccvars.bat with VC9 vcvars.bat
 # replace vcvars in ifortvars.bat by iclvars.bat
 # set CLOCK_RATE to cpu clock speed of benchmark platform
-CXXIFLAGS = -O3 -Qopenmp -QxHost -Qunroll4 -debug:inline-debug-info -Qopt-report-file=$*_opt.txt -Qopt-report4 /Qparallel-source-info:2
+CXXIFLAGS = -O3 -Qopenmp -QxHost -Qunroll4 -debug:inline-debug-info -Qopt-report-file=$*_opt.txt -Qopt-report4 /Qparallel-source-info:2 /Qprotect-parens
 CIFLAGS = -O3 -Qstd=c99 -Qopenmp -QxHost -Qunroll4 -debug:inline-debug-info -Qopt-report-file=$*_opt.txt -Qopt-report4 /Qparallel-source-info:2 /Qprotect-parens
 # cl /openmp fails in VC Express; add for full VC
 CXXMFLAGS = /Ox /EHsc /GL- /openmp /fp:fast /arch:AVX2 -Zi

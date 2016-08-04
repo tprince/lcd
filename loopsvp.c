@@ -226,7 +226,7 @@ s111_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 //vectorization should trigger "seems inefficient"
-#if ! __MIC__ && _OPENMP >= 201307
+#if ! __KNC__ && _OPENMP >= 201307
 #pragma omp for simd safelen(1)
 #endif
       for (i__ = 2; i__ <= i__2; i__ += 2)
@@ -289,7 +289,7 @@ s114_ (integer * ntimes, integer * ld, integer * n, real *
       for (j = 2; j <= i__2; ++j) {
 	  int i__3 = j - 1;
 #pragma unroll(0)
-#if !  __MIC__ && _OPENMP >= 201307
+#if !  __KNC__ && _OPENMP >= 201307
 #pragma omp simd
 #endif
 	  for (int i__ = 1; i__ <= i__3; ++i__)
@@ -351,7 +351,7 @@ s119_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
       for (j = 2; j <= i__2; ++j) {
 //OK if i__3 <= aa_dim1 or aa_dim1 >= 64
-#if !  __MIC__ && _OPENMP >= 201307
+#if !  __KNC__ && _OPENMP >= 201307
 #pragma omp simd safelen(32)
 #endif
 	    for (i__ = 2; i__ <= i__3; ++i__) 
@@ -419,7 +419,7 @@ s122_ (integer * ntimes, integer * ld, integer * n, real *
 #if _OPENMP >= 201307
 #pragma omp simd
 #endif
-#if !  __INTEL_COMPILER || __MIC__
+#if !  __INTEL_COMPILER 
 // original loop direction
       for (i__ = *n1; i__ <= i__2; i__ += i__3)
 	  a[i__] += b[*n - (k += j) + 1];
@@ -1081,7 +1081,7 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
 	      bb[i__ + j * bb_dim1] = bb[i__ - 1 + j*bb_dim1] +
 		    cc[i__ + j * cc_dim1];
 
-#if __INTEL_COMPILER
+#if __MIC__
 #pragma omp for simd
 	  for (i__ = 2; i__ <= i__2; ++i__)
       for (int j = 2; j <= i__3; ++j)
@@ -1714,7 +1714,7 @@ s318_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #if defined _OPENMP 
 #if _OPENMP >= 201307
-#pragma omp simd lastprivate(index)
+#pragma omp simd lastprivate(index) reduction(max: max__)
 #endif
 #endif
 // icc fixed as of above build date; gcc PR60117
@@ -1783,7 +1783,7 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
       max__ = aa[aa_dim1 + 1];
       xindex = yindex = 1;
       i__2 = i__3 = *n;
-#if _OPENMP && _OPENMP < 201307 || __MIC__
+#if _OPENMP && _OPENMP < 201307 || __KNC__
 #pragma omp parallel for if(i__2 > 103)
 #else
 #pragma omp parallel for if(i__2 > 103) reduction(max: max__) lastprivate(xindex,yindex)
@@ -1803,7 +1803,7 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
 		  maxj = aa[i__ + j * aa_dim1];
 		  indxj = i__;
 		  }
-#if _OPENMP && _OPENMP < 201307 || __MIC__
+#if _OPENMP && _OPENMP < 201307 || __KNC__
 #pragma omp critical
 #endif
 	    if(maxj > max__) {
@@ -1984,7 +1984,7 @@ s352_ (integer * ntimes, integer * ld, integer * n, real *
       dot = 0.f;
       i__2 = *n;
       // 50% gain for observing ordering on Core i7
-#if !defined __MIC__
+#if !defined __KNC__
 #pragma novector
 #endif
       for (i__ = 1; i__ <= i__2; i__ += 5)
@@ -2294,9 +2294,6 @@ s441_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
 #pragma vector aligned
-#if defined __MIC__
-#pragma omp simd
-#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	a[i__] +=(d__[i__] <= 0.f?b[i__]:c__[i__]) *
 		(d__[i__]==0.f?b[i__]:c__[i__]);
@@ -2359,7 +2356,7 @@ s442_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = *n;
 #if defined __INTEL_COMPILER
 #pragma omp parallel for num_threads(nt) if(i__2 > 103)
-#if !defined __MIC__
+#if !defined __KNC__
 #pragma novector
 #endif
 #endif
