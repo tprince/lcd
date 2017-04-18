@@ -1786,7 +1786,7 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
 #if _OPENMP && _OPENMP < 201307 || __KNC__
 #pragma omp parallel for if(i__2 > 103)
 #else
-#pragma omp parallel for if(i__2 > 103) reduction(max: max__) lastprivate(xindex,yindex)
+#pragma omp parallel for if(i__2 > 103) reduction(max: max__) lastprivate(xindex,yindex) firstprivate(yindex)
 #endif
       for (j = 1; j <= i__2; ++j) {
 	  int indxj=0;
@@ -1806,7 +1806,7 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
 #if _OPENMP && _OPENMP < 201307 || __KNC__
 #pragma omp critical
 #endif
-	    if(maxj > max__) {
+	    if(maxj > max__ ||(maxj == max__) && j<yindex) {
 		max__= maxj;
 		xindex=indxj;
 		yindex=j;

@@ -5496,7 +5496,7 @@ s4117_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
       for (i__ = 2; i__ <= i__2; ++i__)
-	  a[i__] = b[i__] + c__[(unsigned)i__ / 2] * d__[i__];
+	  a[i__] = b[i__] + c__[i__ / 2] * d__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }

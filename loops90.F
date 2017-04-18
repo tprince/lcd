@@ -1930,6 +1930,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s2102')
       call forttime(t1)
       do nl= 1,ntimes/n
+!dir$ vector nontemporal
           forall(j=1:n,i= 1:n) aa(j,i)= merge(1.,0.,j==i)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -2368,6 +2369,17 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s331 ')
       call forttime(t1)
       do nl= 1,ntimes
+#if __INTEL_COMPILER >= 1800
+	  j= findloc(a(:n) < 0,.true.,dim=1,back=.true.)
+	  chksum= float(j)
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
+	enddo
+      call forttime(t2)
+      t2= t2-t1-ctime-(dtime*float(ntimes))
+      chksum= float(j)
+      call check(chksum,ntimes*n,n,t2,'s331 ')
+      return
+#else
 	  j= findloc(a(:n) < 0,.true.,.true.)
 	  chksum= float(j)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
@@ -2392,6 +2404,7 @@ C
         if(i>size(a))i=0
         return
       end function findloc
+#endif
       end
 C%3.3
       subroutine s332(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc,t)
@@ -2407,6 +2420,18 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
+#if __INTEL_COMPILER >= 1800
+	  index= findloc(a(:n) > t,.true.,dim=1)
+	  value= a(index)
+          chksum= value+float(index)
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,chksum)
+	enddo
+      call forttime(t2)
+      t2= t2-t1-ctime-(dtime*float(ntimes))
+      chksum= value+float(index)
+      call check(chksum,ntimes*n,n,t2,'s332 ')
+      return
+#else
 	  index= findloc(a(:n) > t,.true.)
 	  value= a(index)
           chksum= value+float(index)
@@ -2426,6 +2451,7 @@ C
         if(i>size(a))i=0
         return
       end function findloc
+#endif
       end
 C%3.4
       subroutine s341(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -2708,6 +2734,17 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
+#if __INTEL_COMPILER >= 1800
+	  i= findloc(a(:n) < 0,.true.,dim=1)
+	  a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
+	enddo
+      call forttime(t2)
+      t2= t2-t1-ctime-(dtime*float(ntimes))
+      chksum= cs1d(n,a)
+      call check(chksum,ntimes*(n-1),n,t2,'s415 ')
+      return
+#else
 	  i= findloc(a(:n) < 0,.true.)
 !dir$ vector aligned
 	  a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
@@ -2727,6 +2764,7 @@ C
         if(i>size(a))i=0
         return
       end function findloc
+#endif
       end
 C%4.2
       subroutine s421(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -3090,6 +3128,20 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s481 ')
       call forttime(t1)
       do nl= 1,ntimes
+#if __INTEL_COMPILER >= 1800
+          i=findloc(d(:n) < 0.,.true.,dim=1) 
+          if(i<1)i= n +1
+          a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
+          if(d(i) < 0.) stop 'stop 1'
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
+	enddo
+      call forttime(t2)
+      t2= t2-t1-ctime-(dtime*float(ntimes))
+      chksum= cs1d(n,a)
+      call check(chksum,ntimes*n,n,t2,'s481 ')
+      return
+      stop
+#else
           i=findloc(d(:n) < 0.,.true.) 
           if(i<1)i= n +1
           a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
@@ -3111,6 +3163,7 @@ C
         if(i>size(a))i=0
         return
       end function findloc
+#endif
       end
 C%4.8
       subroutine s482(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc)
@@ -3126,6 +3179,19 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ vector aligned
+#if __INTEL_COMPILER >= 1800
+          i=findloc(c(:n) > b(:n),.true.,dim=1)
+          if(i<1)i=n
+          a(:i)= a(:i)+b(:i)*c(:i)
+          if(c(i) > b(i))return
+	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
+	enddo
+      call forttime(t2)
+      t2= t2-t1-ctime-(dtime*float(ntimes))
+      chksum= cs1d(n,a)
+      call check(chksum,ntimes*n,n,t2,'s482 ')
+      return
+#else
           i=findloc(c(:n) > b(:n),.true.)
           if(i<1)i=n
           a(:i)= a(:i)+b(:i)*c(:i)
@@ -3146,6 +3212,7 @@ C
         if(i>size(a))i=0
         return
       end function findloc
+#endif
       end
 C%4.9
       subroutine s491(ntimes,ld,n,ctime,dtime,a,b,c,d,e,aa,bb,cc,ip)

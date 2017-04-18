@@ -41,15 +41,6 @@ static real c_b393 = 0.f;
   extern "C" real cs1d_ (integer *, real *);
   extern "C" real cs2d_ (integer *, real *);
   extern "C" /* Subroutine */ int s471s_ (void);
-#if !defined __INTEL_COMPILER
-#if defined __GNUC__
-#define max(x,y) fmaxf(x,y)
-#define min(x,y) fminf(x,y)
-#else
-#define max(x,y) ((x)>(y)?(x):(y))
-#define min(x,y) ((x)<(y)?(x):(y))
-#endif
-#endif
 
 /* *********************************************************************** */
 /*                TEST SUITE FOR VECTORIZING COMPILERS                  * */

@@ -2492,7 +2492,7 @@ C
 	  xindex=1
 	  yindex=1
 !$omp parallel do private(ml) if(n>103) reduction(max: max_)              &
-!$omp& lastprivate(xindex,yindex)
+!$omp& lastprivate(xindex,yindex) firstprivate(yindex)
 	  do j=1,n
 	      ml= maxloc(aa(:n,j),dim=1)
 	      if(aa(ml,j)>max_ .or. aa(ml,j)==max_ .and. j<yindex)then
@@ -3152,9 +3152,7 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 cdec$ loop count avg (1000)
-#ifdef __INTEL_COMPILER
 !$omp simd safelen(32)
-#endif
 	  do i= 1,n-1
 	    x(i+1)= array(i)+a(i)
 	    enddo
@@ -3632,7 +3630,7 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s4117')
       call forttime(t1)
       do nl= 1,ntimes
-	  forall( i= 2:n) a(i)= b(i)+c(ishft(i,-1))*d(i)
+	  forall(i= 2:n) a(i)= b(i)+c(i/2)*d(i)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
