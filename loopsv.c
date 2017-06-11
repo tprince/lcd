@@ -778,7 +778,7 @@ s128_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       j = 0;
       i__2 = *n / 2;
-#ifndef __KNC__
+#if _OPENMP >= 201307 && ! __KNC__
 #pragma novector
 #pragma omp simd safelen(1)
 #endif
@@ -868,7 +868,7 @@ s151_ (integer * ntimes, integer * ld, integer * n, real *
   real t1, t2;
   integer nl;
   real chksum;
-  extern /* Subroutine */ int s151s_ (real *, real *, integer *, integer );
+  extern /* Subroutine */ int s151s_ (real * restrict, real *, integer *, integer );
 
 
 /*     interprocedural data flow analysis */
@@ -944,7 +944,7 @@ s152_ (integer * ntimes, integer * ld, integer * n, real *
   integer nl;
   real chksum;
   extern real cs1d_ (integer *, real *);
-  extern /* Subroutine */ int s152s_ (real *, real *, real *, integer *);
+  extern /* Subroutine */ int s152s_ (real * restrict, real * restrict, real *, integer *);
 
 
 /*     interprocedural data flow analysis */
@@ -1048,11 +1048,13 @@ s161_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
+#if __INTEL_COMPILER
   __assume_aligned(b+1,64);
   __assume_aligned(c__+1,64);
   __assume_aligned(d__+1,64);
   __assume_aligned(e+1,64);
   __assume_aligned(a+1,64);
+#endif
 #pragma vector aligned
       for (i__ = 1; i__ <= i__2; ++i__){
 	  a[i__] = (b[i__] >= 0.f)? c__[i__] + d__[i__] * e[i__]: a[i__];
@@ -1117,8 +1119,10 @@ s171_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if __INTELCOMPILER
   __assume_aligned(b+1,64);
   __assume_aligned(a+1,64);
+#endif
 #if _OPENMP >= 201307
 #if ! __KNC__ 
 #pragma omp simd safelen(1)
@@ -1828,10 +1832,12 @@ s241_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
+#if __INTELCOMPILER
   __assume_aligned(b+1,64);
   __assume_aligned(c__+1,64);
   __assume_aligned(d__+1,64);
   __assume_aligned(a+1,64);
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  float tmp = a[i__ + 1] * d__[i__];
 	  b[i__] = (a[i__] = b[i__] * c__[i__] * d__[i__]) * tmp;
@@ -1888,12 +1894,10 @@ s242_ (integer * ntimes, integer * ld, integer * n, real *
   forttime_ (&t1);
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
-    float tmp[i__2 = *n];
-      // optimized for Core i7
+      float tmp = *s1 + *s2,tmp1 = a[1];
+      i__2 = *n;
       for (i__ = 2; i__ <= i__2; ++i__)
-	  tmp[i__ - 1] = *s1 + *s2 + b[i__] + c__[i__] + d__[i__];
-      for (i__ = 2; i__ <= i__2; ++i__)
-	  a[i__] = tmp[i__ - 1] + a[i__ - 1];
+	a[i__] = tmp1 += (tmp + b[i__] + c__[i__] + d__[i__]);
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
     }
@@ -3512,6 +3516,7 @@ s315_ (integer * ntimes, integer * ld, integer * n, real *
       x = a[1];
       index = 1;
       i__2 = *n;
+// following omp simd usage is broken through gcc 5.4
 #if  _OPENMP >= 201307
 #pragma omp simd lastprivate(index) reduction(max: x)
 #endif
@@ -5259,7 +5264,7 @@ s4113_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
-#ifndef __KNC__
+#if _OPENMP >= 201307 && ! __KNC__
 #pragma omp simd safelen(1)
 #endif
       for (i__ = 1; i__ <= i__2; ++i__)
@@ -6237,12 +6242,14 @@ vbor_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if __INTELCOMPILER
   __assume_aligned(b+1,64);
   __assume_aligned(c__+1,64);
   __assume_aligned(d__+1,64);
   __assume_aligned(e+1,64);
   __assume_aligned(a+1,64);
   __assume_aligned(aa+aa_offset,64);
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  a1 = a[i__];
 	  b1 = b[i__];

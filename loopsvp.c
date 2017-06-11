@@ -722,7 +722,7 @@ s141_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp parallel if(i__2 > 103)
       {
       float avgchunk=(i__2+1)*i__2/2;
-      int nt;
+      int nt,m;
       if(i__2 > 103){
 #if defined _OPENMP
 	  nt=omp_get_num_threads();
@@ -734,7 +734,7 @@ s141_ (integer * ntimes, integer * ld, integer * n, real *
 }	else
 	  nt=1;
 #pragma omp for
-      for(int m= 1;m <= nt; ++m){
+      for(m= 1;m <= nt; ++m){
 	  int jbeg=sqrtf(.25f+2*(m-1)*avgchunk)+1;
 // closest approximation to targeted chunk size
 	  int jend=sqrtf(.25f+2*m*avgchunk);
@@ -803,7 +803,9 @@ s162_ (integer * ntimes, integer * ld, integer * n, real *
 	  i__2 = *n - 1;	// should be *n - *k
 // the point of this benchmark is to see the compiler using the conditional
 // to resolve overlap direction (if not done at run time)
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
 	  for (i__ = 1; i__ <= i__2; ++i__)
 	      a[i__] = a[i__ + *k] + b[i__] * c__[i__];
 	}
@@ -863,8 +865,10 @@ s173_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = k;
 //clearly no overlap, so ivdep should not be needed
+#if _OPENMP >= 201307
 #pragma vector unaligned
 #pragma omp simd
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__ + k] = a[i__] + b[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -924,7 +928,7 @@ s175_ (integer * ntimes, integer * ld, integer * n, real *
       int len;
       i__2 = *n - *inc;
       i__3 = *inc;
-#if __MIC__ || __AVX2__
+#if (__MIC__ || __AVX2__) && _OPENMP >= 201307
 #pragma omp simd
 #endif
       for (i__ = 1; i__ <= i__2; i__ += i__3)
@@ -985,7 +989,7 @@ s232_ (integer * ntimes, integer * ld, integer * n, real *
 #pragma omp parallel if(i__2 > 103)
       {
       float avgchunk=(i__2+1)*i__2/2;
-      int nt;
+      int nt,m;
       if(i__2 > 103){
 #if defined _OPENMP
 	  nt=omp_get_num_threads();
@@ -997,7 +1001,7 @@ s232_ (integer * ntimes, integer * ld, integer * n, real *
 }	else
 	  nt=1;
 #pragma omp for
-      for(int m= 1;m <= nt; ++m){
+      for(m= 1;m <= nt; ++m){
 	  int jbeg=sqrtf(.25f+2*(m-1)*avgchunk)+2;
 // closest approximation to targeted chunk size
 	  int jend=sqrtf(.25f+2*m*avgchunk)+1;
@@ -1074,9 +1078,10 @@ s233_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
 #pragma omp parallel if(i__2 > 53)
       {
+      int j;
 #pragma omp for nowait
 #pragma novector
-      for (int j = 2; j <= i__3; ++j)
+      for (j = 2; j <= i__3; ++j)
 	  for (int i__ = 2; i__ <= i__2; ++i__)
 	      bb[i__ + j * bb_dim1] = bb[i__ - 1 + j*bb_dim1] +
 		    cc[i__ + j * cc_dim1];
@@ -1148,7 +1153,9 @@ s244_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
 #pragma vector aligned
+#if _OPENMP >= 201307
 #pragma omp simd // aligned(a,b,c__,d__)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  a[i__] = b[i__] + c__[i__] * d__[i__];
 	  b[i__] += c__[i__];
@@ -1210,8 +1217,10 @@ s251_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if _OPENMP >= 201307
 #pragma vector aligned
 #pragma omp simd // aligned(a,b,c__,d__)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
 	  s = b[i__] + c__[i__] * d__[i__];
 	  a[i__] = s * s;
@@ -1314,7 +1323,7 @@ s258_ (integer * ntimes, integer * ld, integer * n, real *
 
   /* Local variables */
   integer i__;
-  real s,sv[*n];
+  real s;
   real t1, t2;
   integer nl;
   real chksum;
@@ -1348,12 +1357,14 @@ s258_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       s = 0.f;
       i__2 = *n;
-      for (i__ = 1; i__ <= i__2; ++i__)
-	  sv[i__ - 1] = s = (a[i__] > 0.f)? d__[i__] * d__[i__]: s;
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
       for (i__ = 1; i__ <= i__2; ++i__) {
-	  b[i__] = sv[i__ - 1] * c__[i__] + d__[i__];
-	  e[i__] = sv[i__ - 1] * aa[i__ + aa_dim1]+ aa[i__ + aa_dim1];
+	  if (a[i__] > 0.f)
+	      s = d__[i__] * d__[i__];
+	  b[i__] = s * c__[i__] + d__[i__];
+	  e[i__] = s * aa[i__ + aa_dim1]+ aa[i__ + aa_dim1];
 	}
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
 	      &bb[bb_offset], &cc[cc_offset], &c_b3);
@@ -1409,8 +1420,10 @@ s271_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if _OPENMP >= 201307
 #pragma vector aligned
 #pragma omp simd // aligned(a,b,c__)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[i__] += (b[i__] > 0.f ? b[i__] : 0.f) * c__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -1469,7 +1482,7 @@ s275_ (integer * ntimes, integer * ld, integer * n, real *
       i__2 = i__3 = *n;
 	for (j = 2; j <= i__3; ++j)
 //OK if i__2 <= aa_dim1 or aa_dim1 > 64
-#if __MIC__ || __AVX2__
+#if (__MIC__ || __AVX2__) &&_OPENMP >= 201307
 #pragma omp simd safelen(32)
 #endif
 	    for (i__ = 2; i__ <= i__2; ++i__)
@@ -1530,10 +1543,14 @@ s281_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
     for (i__= 1; i__ <= (i__2+1)/2; ++i__)
 	a[i__] = (b[i__] = a[i__2 - i__ + 1] + b[i__] * c__[i__])- 1.f;
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
     for (i__= (i__2+3)/2; i__ <= i__2; ++i__)
 	a[i__] = (b[i__] = a[i__2 - i__ + 1] + b[i__] * c__[i__])- 1.f;
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -1784,7 +1801,7 @@ s3110_ (integer * ntimes, integer * ld, integer * n, real *
       xindex = yindex = 1;
       i__2 = i__3 = *n;
 #if _OPENMP && _OPENMP < 201307 || __KNC__
-#pragma omp parallel for if(i__2 > 103)
+#pragma omp parallel for if(i__2 > 103) lastprivate(xindex,yindex) firstprivate(yindex)
 #else
 #pragma omp parallel for if(i__2 > 103) reduction(max: max__) lastprivate(xindex,yindex) firstprivate(yindex)
 #endif
@@ -2044,7 +2061,9 @@ s413_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__ = 1;
       b[i__] += d__[i__] * e[i__];
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
       for (i__ = 2; i__ < *n; ++i__) {
 	  b[i__] += d__[i__] * e[i__];
 	  a[i__] = c__[i__] + d__[i__] * e[i__];
@@ -2109,7 +2128,9 @@ s422_ (integer * ntimes, integer * ld, integer * n, real *
 // the point of the benchmark is for the compiler to analyze the source
 // and see that vectorization with source/destination overlap is safe.
 // gcc 4.7 does this.  ifort does this.  icc/icl 12.x do not.
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  x[i__ - 1] = cdata_1.array[i__ + 7] + a[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -2171,7 +2192,9 @@ s423_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
 // vectorlength assertion nearly OK even if loop were reversed
+#if _OPENMP >= 201307
 #pragma omp simd safelen(32)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  cdata_1.array[i__] = x[i__ - 1] + a[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -2234,7 +2257,9 @@ s424_ (integer * ntimes, integer * ld, integer * n, real *
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n - 1;
 // vectorlength assertion is OK by inspection
+#if _OPENMP >= 201307
 #pragma omp simd safelen(32)
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  x[i__] = cdata_1.array[i__ - 1] + a[i__];
       dummy_ (ld, n, x, &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],
@@ -2494,7 +2519,9 @@ s491_ (integer * ntimes, integer * ld, integer * n, real *
   i__1 = *ntimes;
   for (nl = 1; nl <= i__1; ++nl) {
       i__2 = *n;
+#if _OPENMP >= 201307
 #pragma omp simd
+#endif
       for (i__ = 1; i__ <= i__2; ++i__)
 	  a[ip[i__]] = b[i__] + c__[i__] * d__[i__];
       dummy_ (ld, n, &a[1], &b[1], &c__[1], &d__[1], &e[1], &aa[aa_offset],

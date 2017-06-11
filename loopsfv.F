@@ -830,7 +830,12 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 !dir$ assume_aligned a:64,b:64
-	    a(inc:inc*n:inc)= a(inc:inc*n:inc)+b(:n)
+#ifdef __MIC__
+!dir$ simd
+#endif
+	  do i= 1,n
+	    a(i*inc)= a(i*inc)+b(i)
+	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -852,7 +857,12 @@ C
       call init(ld,n,a,b,c,d,e,aa,bb,cc,'s172 ')
       call forttime(t1)
       do nl= 1,ntimes
-	    a(n1:n:n3)= a(n1:n:n3)+b(n1:n:n3)
+#ifdef __MIC__
+!dir$ simd
+#endif
+	  do i= n1,n,n3
+	    a(i)= a(i)+b(i)
+	    enddo
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
       call forttime(t2)
@@ -2492,7 +2502,7 @@ C
 	  xindex=1
 	  yindex=1
 !$omp parallel do private(ml) if(n>103) reduction(max: max_)              &
-!$omp& lastprivate(xindex,yindex) firstprivate(yindex)
+!$omp& lastprivate(xindex,yindex)
 	  do j=1,n
 	      ml= maxloc(aa(:n,j),dim=1)
 	      if(aa(ml,j)>max_ .or. aa(ml,j)==max_ .and. j<yindex)then
@@ -3152,7 +3162,9 @@ C
       call forttime(t1)
       do nl= 1,ntimes
 cdec$ loop count avg (1000)
+#ifdef __INTEL_COMPILER
 !$omp simd safelen(32)
+#endif
 	  do i= 1,n-1
 	    x(i+1)= array(i)+a(i)
 	    enddo

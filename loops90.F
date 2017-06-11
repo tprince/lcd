@@ -2736,6 +2736,7 @@ C
 !dir$ vector aligned
 #if __INTEL_COMPILER >= 1800
 	  i= findloc(a(:n) < 0,.true.,dim=1)
+!dir$ vector aligned
 	  a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
 	enddo
@@ -3131,6 +3132,7 @@ C
 #if __INTEL_COMPILER >= 1800
           i=findloc(d(:n) < 0.,.true.,dim=1) 
           if(i<1)i= n +1
+!dir$ vector aligned
           a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
           if(d(i) < 0.) stop 'stop 1'
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -3144,6 +3146,7 @@ C
 #else
           i=findloc(d(:n) < 0.,.true.) 
           if(i<1)i= n +1
+!dir$ vector aligned
           a(:i-1)= a(:i-1)+b(:i-1)*c(:i-1)
           if(d(i) < 0.) stop 'stop 1'
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -3182,6 +3185,7 @@ C
 #if __INTEL_COMPILER >= 1800
           i=findloc(c(:n) > b(:n),.true.,dim=1)
           if(i<1)i=n
+!dir$ vector aligned
           a(:i)= a(:i)+b(:i)*c(:i)
           if(c(i) > b(i))return
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
@@ -3194,6 +3198,7 @@ C
 #else
           i=findloc(c(:n) > b(:n),.true.)
           if(i<1)i=n
+!dir$ vector aligned
           a(:i)= a(:i)+b(:i)*c(:i)
           if(c(i) > b(i))return
 	  call dummy(ld,n,a,b,c,d,e,aa,bb,cc,1.)
